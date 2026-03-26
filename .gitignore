@@ -7,6 +7,9 @@ lora_weights/
 output/
 output_logs/
 used_scripts/
+website/node_modules/
+website/build/
+website/.docusaurus/
 
 # Python cache and build artifacts
 __pycache__/
