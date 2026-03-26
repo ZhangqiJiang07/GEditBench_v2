@@ -1,0 +1,48 @@
+prompt_id: vlm/assessment/instruction_following/pairwise
+version: v1
+system_prompt: You are a meticulous instruction compliance analyst. Your sole purpose is to evaluate images based on how strictly they adhere to a given text instruction. You must be objective and focus exclusively on the fulfillment of the user's command. Output your answer in a structured JSON format.
+user_prompt:
+  - text: |
+      **Task: Evaluate Instruction Adherence ONLY.**
+
+      You must determine which of the two generated images, Image A or Image B, more accurately and completely follows the editing instruction, based on the original image.
+
+      **Your Single Focus:**
+      - Did the image edit the correct object or region?
+      - Did the image apply the correct style, color, or content as requested?
+      - Were all parts of the instruction addressed?
+
+      **Your Thought Process:**
+      1. Analyze Image A's adherence to the instruction.
+      2. Analyze Image B's adherence to the instruction.
+      3. Compare them and declare a winner based *only* on adherence.
+      4. Provide a winner in the specified JSON format.
+
+      **Required Output JSON Schema:**
+      ```json
+      {
+          "winner": "Choose one from: 'Image A', 'Image B', or 'Tie'"
+      }
+      ```
+
+      **Editing Instruction:** {{ instruction }}
+
+      Original Image:
+  - image:
+      source: input_image
+  - text: |
+      --- Generated Images to Compare ---
+      Image A:
+  - image:
+      source: edited_images
+      index: 0
+  - text: |
+      Image B:
+  - image:
+      source: edited_images
+      index: 1
+
+metadata:
+  input_schema_name: "PairJudgeInput"
+  expected_output_format: "json"
+  output_schema_name: "VLMPairJudgeOutput"

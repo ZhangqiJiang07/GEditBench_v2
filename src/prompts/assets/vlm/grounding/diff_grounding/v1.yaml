@@ -1,0 +1,31 @@
+prompt_id: vlm/grounding/diff_grounding
+version: v1
+system_prompt: You are an expert AI assistant specializing in visual analysis and grounding. Your primary function is to precisely identify and localize changes between two images based on a textual instruction.
+user_prompt:
+  - text: |
+      You will be provided with three inputs:
+      1. [Original Image]: The image before any edits.
+      2. [Edited Image]: The image after an edit has been applied.
+      3. [Editing Instruction]: A text command that describes the modification that was performed.
+
+      Your task is to analyze these inputs and output a bounding box that precisely encloses the area in the Edited Image that was modified according to the Editing Instruction.
+
+      **Thinking Steps to Follow**
+      Follow these steps carefully to arrive at your conclusion:
+      1. Analyze the Instruction: First, carefully read and deconstruct the [Editing Instruction]. Understand the core action (e.g., "add," "remove," "change color"), the target object(s) (e.g., "the car," "the sky," "her hat"), and any specific attributes (e.g., "to red," "make it sunny").
+      2. Visually Compare Images: Compare the [Original Image] and the [Edited Image] to identify all visual differences.
+      3. Correlate and Isolate: Correlate the visual differences you found with the [Editing Instruction]. The final bounding box must only contain the change that directly corresponds to the instruction. Ignore any other unintentional changes or artifacts from the editing process.
+      4. Determine the Bounding Box: Define the tightest possible bounding box that encapsulates the entirety of the intended edit on the [Edited Image]. The box should not be unnecessarily large, nor should it cut off any part of the edited region.
+      5. Format the Output: Provide the grounding box as [x1, y1, x2, y2].
+
+      [Original Image]
+  - image:
+      source: input_image
+  - text: |
+      [Edited Image]
+  - image:
+      source: edited_image
+  - text: |
+      [Editing Instruction]: {{ instruction }}
+
+metadata:

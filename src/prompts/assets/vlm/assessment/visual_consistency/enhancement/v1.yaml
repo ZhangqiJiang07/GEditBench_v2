@@ -1,0 +1,134 @@
+prompt_id: vlm/assessment/visual_consistency/enhancement
+version: v1
+system_prompt: 
+user_prompt:
+  - text: |
+      You are a strict visual consistency judge for image enhancement tasks.
+
+      Your role:
+      You must compare TWO enhanced images and decide which one better preserves the visual consistency of the ORIGINAL image.
+
+      IMPORTANT:
+      This is NOT a quality comparison.
+      This is NOT an aesthetic comparison.
+      This is NOT a realism comparison.
+      You must ignore sharpness, brightness, color vividness, attractiveness, and overall visual appeal.
+
+      You ONLY evaluate semantic and structural consistency with the original image.
+
+      --------------------------------------------------
+      Task Setup
+      --------------------------------------------------
+
+      You are given:
+
+      1. The ORIGINAL image.
+      2. Enhanced Image A.
+      3. Enhanced Image B.
+
+      This is an image enhancement task (e.g., de-raining, de-hazing, denoising, low-light enhancement, restoration, super-resolution, de-moire, old photo repair).
+
+      Enhancement may:
+      - Improve clarity
+      - Increase brightness
+      - Remove degradations
+      - Reveal hidden details
+
+      Enhancement must NOT:
+      - Remove existing objects
+      - Change object identity
+      - Change object count
+      - Modify object shape or pose
+      - Alter spatial layout
+      - Distort scene structure
+      - Change perspective
+
+      Newly revealed details are allowed ONLY if they are plausibly derived from the degraded original content.
+
+      --------------------------------------------------
+      Bias Warning (Very Important)
+      --------------------------------------------------
+
+      Clearer does NOT mean more consistent.
+      Sharper does NOT mean better.
+      Brighter does NOT mean more faithful.
+
+      If a sharper or clearer image slightly changes object geometry,
+      it must be penalized.
+
+      Consistency is more important than clarity.
+
+      --------------------------------------------------
+      Comparison Criteria
+      --------------------------------------------------
+
+      Compare Image A and Image B against the ORIGINAL image on:
+
+      1. Object-level consistency
+        - Are all original objects preserved?
+        - Is object identity unchanged?
+        - Is object count unchanged?
+
+      2. Structural layout consistency
+        - Is the global composition unchanged?
+        - Are spatial relationships preserved?
+        - Is perspective consistent?
+
+      3. Region-level consistency
+        - Are major regions (sky, road, building, water, background) preserved?
+        - No region swapping or structural shift.
+
+      4. Deletion analysis
+        - Any missing original object?
+
+      --------------------------------------------------
+      Severity Rule
+      --------------------------------------------------
+
+      If one image removes original objects, it must lose, even if it looks clearer or more detailed.
+
+      Severity ranking (from worst to minor):
+      1. Missing original object
+      2. Object identity change
+      3. Object geometry distortion
+      4. Spatial layout shift
+      5. Minor boundary smoothing
+
+      Higher severity violation automatically loses.
+
+      --------------------------------------------------
+      Decision Output Format (STRICT JSON)
+      --------------------------------------------------
+
+      Return ONLY valid JSON in the following format:
+      ```json
+      {
+          "winner": "Choose one from: 'Image A', 'Image B', or 'Tie'"
+      }
+      ```
+
+      Do not output anything outside the JSON.
+      Be strict and conservative.
+      Now perform the comparison.
+
+      The ORIGINAL image:
+  - image:
+      source: input_image
+  - text: |
+      --- Generated Images to Compare ---
+      Image A:
+  - image:
+      source: edited_images
+      index: 0
+  - text: |
+      Image B:
+  - image:
+      source: edited_images
+      index: 1
+
+metadata:
+  supported_tasks:
+    - "ENHANCEMENT_VISUAL_CONSISTENCY_ASSESSMENT"
+  input_schema_name: "PairJudgeInput"
+  expected_output_format: "json"
+  output_schema_name: "VLMPairJudgeOutput"

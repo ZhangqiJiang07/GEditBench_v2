@@ -1,0 +1,77 @@
+# Default modules setting
+# ---- FORMAT ----
+# pipe-name:
+#   module specific config 1: value
+#   module specific config 2: value
+# ----------------
+
+_base_:
+  user_config: "../user_config.yaml"
+
+lpips-pipe:
+  net: 'alex'
+
+dino-v3-pipe:
+  model_path: ${user_config.model_paths.dino_v3_path}
+
+clip-pipe:
+  model_path: ${user_config.model_paths.clip_path}
+
+depth-anything-v2-pipe:
+  model_path: ${user_config.model_paths.depth_anything_v2_path}
+
+sam-pipe:
+  model_cfg: ${user_config.model_paths.sam_cfg}
+  model_path: ${user_config.model_paths.sam_path}
+
+face-geometry-pipe:
+  min_detection_confidence: 0.5
+
+face-identity-pipe:
+  device: "cpu"
+  face_ana_name: "buffalo_l"
+  model_root: ${user_config.model_paths.arcface_root}
+  detection_size: !tuple [640, 640]
+
+body-pose-and-shape-pipe:
+  static_mode: True
+  model_complexity: 1
+  min_detection_confidence: 0.5
+
+body-appearance-pipe:
+  model_path: ${user_config.model_paths.dino_v3_path}
+
+default_vlm_config:
+  backend: null
+  model_name: null
+  ip_address: ${user_config.client_config.ip_address}
+  port: ${user_config.client_config.vlm_port}
+  base_url: ${user_config.client_config.base_url}
+  api_key: ${user_config.client_config.api_key}
+  max_tokens: ${user_config.client_config.max_tokens}
+  retries: ${user_config.client_config.retries}
+  timeout: ${user_config.client_config.timeout}
+  prompt_info:
+    prompt_id: null
+    version: null
+
+default_llm_config:
+  backend: null
+  model_name: null
+  ip_address: ${user_config.client_config.ip_address}
+  port: ${user_config.client_config.llm_port}
+  base_url: ${user_config.client_config.base_url}
+  api_key: ${user_config.client_config.api_key}
+  max_tokens: ${user_config.client_config.max_tokens}
+  retries: ${user_config.client_config.retries}
+  timeout: ${user_config.client_config.timeout}
+  prompt_info:
+    prompt_id: null
+    version: null
+
+pairwise-judge: ${pipes_default.default_vlm_config}
+
+viescore: ${pipes_default.default_vlm_config}
+
+instruction_parser: ${pipes_default.default_llm_config}
+general_grounder: ${pipes_default.default_vlm_config}

@@ -1,0 +1,100 @@
+prompt_id: vlm/assessment/visual_consistency/camera_motion
+version: v1
+user_prompt:
+  - text: |
+      You are an expert vision-language model acting as a strict comparative evaluator for camera motion image editing.
+      Your task is to compare TWO edited images (A and B) with respect to the SAME original image, and determine which edited result better preserves visual consistency under camera motion.
+
+      Editing Type: Camera Motion Only
+      Examples include camera translation (left/right/up/down), rotation around a subject, tilt, viewpoint elevation change, or slight perspective shift.
+      The scene content itself should NOT change. Only the camera viewpoint should change.
+
+      ==============================
+      EVALUATION PRINCIPLES
+      ==============================
+
+      1. Identity Preservation (Highest Priority)
+      - Objects and persons visible in BOTH the original and edited image must remain the same entities.
+      - No object substitution.
+      - No category change.
+      - No attribute mutation (color, clothing, material, shape).
+      - No duplication of existing objects.
+      If one result contains identity corruption and the other does not, immediately choose the identity-consistent one.
+
+      2. Shared-Region-Only Evaluation
+      - ONLY evaluate objects/persons visible in BOTH the original and the edited image.
+      - Ignore newly revealed regions caused by viewpoint change.
+      - Do NOT penalize objects that move out of frame.
+      - Cropping due to camera motion is acceptable.
+
+      3. Structural & Geometric Consistency
+      - Relative spatial relationships between preserved objects must remain logically consistent.
+      - Perspective deformation must be physically plausible.
+      - No unrealistic stretching, bending, warping, or structural corruption.
+      - Depth ordering between objects should remain coherent.
+
+      4. Scene Continuity
+      - The edited image should look like a plausible camera movement from the original.
+      - Lighting direction and shadow logic must remain consistent.
+      - Background geometry should remain coherent.
+
+      5. What to Ignore
+      - Newly visible regions
+      - Minor texture noise
+      - Slight exposure differences
+      - Small resolution differences
+
+      ==============================
+      COMPARISON PROCEDURE
+      ==============================
+
+      Step 1: List shared entities between Original and A.
+      Step 2: Evaluate A (identity, structure, continuity).
+
+      Step 3: List shared entities between Original and B.
+      Step 4: Evaluate B (identity, structure, continuity).
+
+      Step 5: Directly compare A and B.
+      Identify the key difference that determines the final decision.
+
+      Rules:
+      - Even if both are imperfect, choose the less inconsistent one.
+      - Use "Tie" ONLY if both are nearly indistinguishable in consistency quality.
+      - Be strict and objective.
+      - Focus only on shared entities.
+
+      ==============================
+      Required Output JSON Schema:
+      ==============================
+
+      ```json
+      {
+          "winner": "Choose one from: 'Image A', 'Image B', or 'Tie'"
+      }
+      ```
+
+      ==============================
+      INPUT
+      ==============================
+      Camera Motion Description:
+      {{instruction}}
+
+      Original Image:
+  - image:
+      source: input_image
+  - text: |
+      --- Generated Images to Compare ---
+      Image A:
+  - image:
+      source: edited_images
+      index: 0
+  - text: |
+      Image B:
+  - image:
+      source: edited_images
+      index: 1
+
+metadata:
+  input_schema_name: "PairJudgeInput"
+  expected_output_format: "json"
+  output_schema_name: "VLMPairJudgeOutput"

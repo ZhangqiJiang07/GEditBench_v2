@@ -1,0 +1,109 @@
+{
+    "color_alter": {
+        "edit_area": {
+            "primary_key": "L_channel_ssim",
+            "primary_direction": 1,
+            "threshold_elite": 0.67,
+            "threshold_failure": -0.6,
+            "secondary_constraints": {"dinov3_structure_similarity": 1}
+        },
+        "unedit_area": {
+            "primary_key": "lpips",
+            "primary_direction": -1,
+            "threshold_elite": 0.64,
+            "threshold_failure": -0.17,
+            "secondary_constraints": {"emd": -1}
+        }
+    },
+    "material_alter": {
+        "edit_area": {
+            "primary_key": "depth_ssim",
+            "primary_direction": 1,
+            "threshold_elite": 0.63,
+            "threshold_failure": -0.28,
+            "secondary_constraints": {"dinov3_structure_similarity": 1}
+        },
+        "unedit_area": {
+            "primary_key": "lpips",
+            "primary_direction": -1,
+            "threshold_elite": 0.63,
+            "threshold_failure": -0.19,
+            "secondary_constraints": {"emd": -1}
+        }
+    },
+    "ps_human": {
+        "edit_area": {
+            "primary_key": "face_ID_sim",
+            "primary_direction": 1,
+            "threshold_elite": 0.64,
+            "threshold_failure": -0.26,
+            "secondary_constraints": {"hair_high_frequency_diff": -1, "body_appearance_dino_cosine_sim": 1}
+        },
+        "unedit_area": {
+            "primary_key": "lpips",
+            "primary_direction": -1,
+            "threshold_elite": 0.68,
+            "threshold_failure": -0.24,
+            "secondary_constraints": {"bg_faceID_sim": 1}
+        }
+    },
+    "oref": {
+        "edit_area": {
+            "primary_key": "sam_dino_cls_sim",
+            "primary_direction": 1,
+            "threshold_elite": 0.62,
+            "threshold_failure": -0.56,
+            "secondary_constraints": {"sam_clip_cls_sim": 1}
+        }
+    },
+    "object_extraction": {
+        "edit_area": {
+            "primary_key": "sam_dino_cls_sim",
+            "primary_direction": 1,
+            "threshold_elite": 0.69,
+            "threshold_failure": -0.59,
+            "secondary_constraints": {"sam_clip_cls_sim": 1}
+        }
+    },
+    "size_adjustment": {
+        "edit_area": {
+            "primary_key": "sam_dino_cls_sim",
+            "primary_direction": 1,
+            "threshold_elite": 0.65,
+            "threshold_failure": -0.57,
+            "secondary_constraints": {"sam_clip_cls_sim": 1}
+        },
+        "unedit_area": {
+            "primary_key": "lpips",
+            "primary_direction": -1,
+            "threshold_elite": 0.66,
+            "threshold_failure": -0.24,
+            "secondary_constraints": {"emd": -1}
+        }
+    },
+    "motion_change": {
+        "edit_area": {
+            "primary_key": "face_ID_sim",
+            "primary_direction": 1,
+            "threshold_elite": 0.63,
+            "threshold_failure": -0.42,
+            "secondary_constraints": {"hair_high_frequency_diff": -1, "body_appearance_dino_cosine_sim": 1}
+        },
+        "unedit_area": {
+            "primary_key": "lpips",
+            "primary_direction": -1,
+            "threshold_elite": 0.64,
+            "threshold_failure": -0.44,
+            "secondary_constraints": {"bg_faceID_sim": 1}
+        }
+    },
+    "cref": {
+        "edit_area": {
+            "primary_key": "max_match_face_ID_sim",
+            "primary_direction": 1,
+            "threshold_elite": 0.53,
+            "threshold_failure": -0.68,
+            "secondary_constraints": {}
+        }
+    }
+}

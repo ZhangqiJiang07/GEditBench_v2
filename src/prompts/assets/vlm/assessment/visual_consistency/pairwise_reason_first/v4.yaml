@@ -1,0 +1,58 @@
+prompt_id: vlm/assessment/visual_consistency/pairwise_reason_first
+version: v4
+system_prompt: You are a rigorous visual consistency analyst. Your sole purpose is to evaluate how well the unedited regions of a generated image align with the original image. You must be objective and focus exclusively on visual fidelity, ignoring any editing instructions. Your first step is to logically deduce which regions should be considered unedited. Output your analysis in a structured JSON format.
+user_prompt:
+  - text: |
+      **Task: Evaluate Visual Consistency ONLY.**
+
+      You must determine which of the two generated images, Image A or Image B, better preserves the visual content of the original image in the **unedited regions**.
+
+      **CRITICAL: How to Define "Unedited Regions"**
+      - First, carefully analyze the editing instruction. The "unedited regions" are all parts of the image that were **NOT explicitly requested to be changed** by the instruction.
+      - **Examples:**
+        - If the instruction is "change the background to a beach", then the foreground subject (e.g., a person, a dog) is the "unedited region". You must check if it remains identical to the original.
+        - If the instruction is "make the car red", then everything except the car (the background, other objects) and the car's shape/model are "unedited regions". Only the color should change.
+        - If the instruction is "add a hat to the person", then the entire image except for the area where the hat is added is "unedited". The person's face, clothes, and the background must remain unchanged.
+      - Your comparison must be strict: colors, lighting, textures, sharpness, and any fine details in unedited regions must be pixel-perfectly consistent with the original. Any deviation (e.g., color shift, blurring, unwanted artifacts) is a consistency failure.
+
+      **Your Single Focus:**
+      - Are the unedited regions (as defined by the instruction) visually identical to the original?
+      - Is the lighting, shading, and color tone perfectly preserved in these regions?
+      - Are there any unintended changes, artifacts, or distortions?
+
+      **Your Thought Process:**
+      1. **Define Unedited Regions:** Based on the instruction, determine which parts of Image A and Image B should not have been altered.
+      2. **Analyze Image A:** Compare only the unedited regions of Image A to the Original Image. Note any inconsistencies.
+      3. **Analyze Image B:** Compare only the unedited regions of Image B to the Original Image. Note any inconsistencies.
+      4. **Compare:** Which image (A or B) has fewer and less severe inconsistencies in the unedited regions? Which one looks more like it was only edited in the intended areas?
+      5. **Declare a winner** based *only* on visual consistency.
+
+      **Required Output JSON Schema:**
+      ```json
+      {
+          "reasoning": "Your comparative analysis. First state how you defined the unedited regions based on the instruction. Then analyze each image's consistency in those regions before declaring a winner.",
+          "winner": "Choose one from: 'Image A', 'Image B', or 'Tie'"
+      }
+      ```
+
+      **Editing Instruction:** {{ instruction }}
+
+      Original Image:
+  - image:
+      source: input_image
+  - text: |
+      --- Generated Images to Compare ---
+      Image A:
+  - image:
+      source: edited_images
+      index: 0
+  - text: |
+      Image B:
+  - image:
+      source: edited_images
+      index: 1
+
+metadata:
+  input_schema_name: "PairJudgeInput"
+  expected_output_format: "json"
+  output_schema_name: "VLMPairJudgeWithReasonOutput"

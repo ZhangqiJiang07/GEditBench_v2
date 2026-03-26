@@ -1,0 +1,20 @@
+
+
+client_config:
+  ip_address: "100.109.42.204"
+  vlm_port: 25930
+  llm_port: 25111
+  api_key: "ak-25d9cfbg73h4jkl80mno16pqrs59tuv2w7x3z4" # ${env:OPENAI_API_KEY} or "ak-..."
+  base_url: "https://models-proxy.stepfun-inc.com/v1/chat/completions" # Optional, only needed if using API backend {env:OPENAI_BASE_URL}
+  max_tokens: 2048
+  retries: 3
+  timeout: 600
+
+model_paths:
+  dino_v3_path: "/mnt/jfs/model-zoo/facebook/dinov3-vitb16-pretrain-lvd1689m"
+  clip_path: "/mnt/jfs/model-zoo/openai/clip-vit-base-patch32"
+  sam_path: "/mnt/jfs/model-zoo/facebook/sam2.1-hiera-large/sam2.1_hiera_large.pt"
+  sam_cfg: "configs/sam2.1/sam2.1_hiera_l.yaml"
+  arcface_root: "/mnt/jfs/model-zoo/.insightface"
+  hair_segmentation_path: "/mnt/jfs/model-zoo/google_mediapipe_models/hair_segmenter.tflite"
+  depth_anything_v2_path: "/mnt/jfs/model-zoo/depth-anything/Depth-Anything-V2-Large-hf"

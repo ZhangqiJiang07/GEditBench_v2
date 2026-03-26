@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+SRC_ROOT="${REPO_ROOT}/src"
+
+if [[ -n "${PYTHONPATH:-}" ]]; then
+  export PYTHONPATH="${REPO_ROOT}:${SRC_ROOT}:${PYTHONPATH}"
+else
+  export PYTHONPATH="${REPO_ROOT}:${SRC_ROOT}"
+fi
+
+exec python3 -m src.cli.autogen "$@"

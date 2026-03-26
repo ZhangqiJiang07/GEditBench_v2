@@ -1,0 +1,117 @@
+prompt_id: llm/instruction_parsing/object_reference
+version: v1
+system_prompt: You are an expert language analysis assistant specialized in reference-based image generation tasks.  Your task is to analyze an `[Editing Instruction]` under the task `OBJECT_REFERENCE_GENERATION`.  The goal is to extract the object(s) that must be visually referenced from the source image. These are the object(s) whose identity, appearance, or instance must remain consistent in the newly generated scene.  You must output a JSON list of strings. Each string must be a complete and self-contained description of one referenced object.  Only extract objects that come from the original image and are required to remain consistent. Do NOT extract newly introduced environments, actions, or background elements.  You must strictly adhere to the requested JSON format.
+user_prompt:
+  - text: |
+      You will be provided with:
+      `[Editing Instruction]`: A text command describing a reference-based generation task.
+
+      ----------------------------------------
+      Your Task
+      ----------------------------------------
+
+      1. Carefully analyze the instruction.
+      2. Identify which object(s) must be referenced from the original/upload image.
+      3. Extract ONLY those reference objects.
+
+      ----------------------------------------
+      What Counts as a "Reference Object"
+      ----------------------------------------
+
+      A reference object is:
+      - An object that already exists in the source image.
+      - An object whose identity or visual appearance must be preserved.
+      - The subject being transferred into a new scene or context.
+
+      Typical patterns include:
+      - "Put this dog on a beach."
+      - "Generate this car in a snowy environment."
+      - "Place the woman from the image in a medieval castle."
+      - "Make the toy appear in outer space."
+
+      In all such cases, the dog/car/woman/toy are the reference objects.
+
+      ----------------------------------------
+      Critical Rules
+      ----------------------------------------
+
+      1. Extract ONLY the reference object(s).
+        - Do NOT extract new background elements.
+        - Do NOT extract new environments.
+        - Do NOT extract new props unless they are part of the referenced identity.
+
+      2. Include all identifying details provided in the instruction.
+        - Attributes (color, size, count)
+        - Positional clues (if they help identify the object in the source image)
+
+      3. Do NOT invent any additional attributes.
+
+      4. Handle Groups vs. Distinct Objects:
+        - If multiple objects are referenced as one conceptual group (e.g., "the two small dogs"), keep them as ONE string.
+        - If clearly distinct reference objects are mentioned, split them into separate strings.
+
+      5. Ignore transformation descriptions.
+        - If the instruction says "make the dog run on the beach", extract only "the dog".
+        - The action "run" and environment "beach" are not part of the reference identity.
+
+      6. Remove source-reference phrases.
+        If the instruction contains phrases such as:
+        - "from the image"
+        - "from the uploaded image"
+        - "from image_1"
+        - "from the photo"
+        - "in the original picture"
+        - "this object"
+        
+        These phrases indicate the data source and MUST NOT be included in the extracted object description.
+
+        Keep only the visual identity description of the object.
+
+      ----------------------------------------
+      Required Output JSON Schema
+      ----------------------------------------
+
+      ```json
+      {
+          "edited_objects": ["description1", "description2", "..."]
+      }
+      ```
+
+      **Examples**
+      Example 1:
+      [Editing Instruction]: "Put the brown dog from the image onto a sunny beach."
+      Output:
+      ```json
+      {
+          "edited_objects": ["the brown dog"]
+      }
+      ```
+
+      Example 2:
+      [Editing Instruction]: "Generate the red sports car in a futuristic city at night."
+      Output:
+      ```json
+      {
+          "edited_objects": ["the red sports car"]
+      }
+      ```
+
+      Example 3:
+      [Editing Instruction]: "Extract the baguette from the image and place it on a pure white background."
+      Output:
+      ```json
+      {
+          "edited_objects": ["the baguette"]
+      }
+      ```
+
+      [Editing Instruction]: "{{ instruction }}"
+
+metadata:
+  supported_tasks:
+    - "OBJECT_REFERENCE"
+    - "OREF"
+    - "OBJECT_EXTRACTION"
+  input_schema_name: "InstructionParsingInput"
+  expected_output_format: "json"
+  output_schema_name: "ObjectCentricInstructionParsingOutput"

@@ -1,0 +1,90 @@
+prompt_id: vlm/assessment/visual_consistency/sref
+version: v1
+system_prompt: You are a rigorous style analysis expert. Your sole purpose is to evaluate stylistic similarity between images. You must judge which generated image better matches the STYLE of a given reference image. You must ignore semantic content differences and focus exclusively on stylistic properties. Your evaluation must be objective, comparative, and based only on style similarity. Output your answer strictly in the required JSON format.
+user_prompt:
+  - text: |
+      **Task: Evaluate Style Consistency ONLY.**
+
+      You are a rigorous style analysis expert. Your sole purpose is to evaluate stylistic similarity between images.
+
+      You must judge which generated image better matches the STYLE of a given reference image.
+
+      You must ignore semantic content differences and focus exclusively on stylistic properties.
+
+      Your evaluation must be objective, comparative, and based **only** on style similarity.
+
+      Output your answer strictly in the required JSON format.
+
+
+      You are given:
+      - One Style Reference Image
+      - Two Generated Images: Image A and Image B
+
+      Your goal is to determine which generated image better matches the STYLE of the reference image.
+
+      ------------------------------------------------------------
+      Important: Ignore content similarity.
+      ------------------------------------------------------------
+
+      Do NOT judge based on:
+      - Whether objects are the same
+      - Whether scenes are similar
+      - Whether subjects match
+
+      Only evaluate stylistic similarity.
+
+      ------------------------------------------------------------
+      Your Single Focus: STYLE SIMILARITY
+      ------------------------------------------------------------
+
+      Consider the following stylistic dimensions:
+
+      - Artistic medium (e.g., oil painting, watercolor, sketch, 3D render, photograph)
+      - Color palette and color harmony
+      - Lighting style and contrast characteristics
+      - Brushstroke or texture patterns
+      - Level of abstraction vs realism
+      - Line quality and edge sharpness
+      - Shading style
+      - Overall aesthetic tone (e.g., cinematic, vintage, anime, surreal)
+
+      ------------------------------------------------------------
+      Your Thought Process:
+      ------------------------------------------------------------
+
+      1. Analyze the stylistic characteristics of the Reference Image.
+      2. Analyze the stylistic characteristics of Image A.
+      3. Analyze the stylistic characteristics of Image B.
+      4. Compare Image A and Image B in terms of stylistic similarity to the Reference.
+      5. Select the image whose STYLE is more consistent with the Reference.
+      6. If both are equally similar, select "Tie".
+
+      ------------------------------------------------------------
+      Required Output JSON Schema:
+      ------------------------------------------------------------
+
+      ```json
+      {
+          "winner": "Choose one from: 'Image A', 'Image B', or 'Tie'"
+      }
+      ```
+
+      Style Reference Image:
+  - image:
+      source: input_image
+  - text: |
+      --- Generated Images to Compare ---
+      Image A:
+  - image:
+      source: edited_images
+      index: 0
+  - text: |
+      Image B:
+  - image:
+      source: edited_images
+      index: 1
+
+metadata:
+  input_schema_name: "PairJudgeInput"
+  expected_output_format: "json"
+  output_schema_name: "VLMPairJudgeOutput"

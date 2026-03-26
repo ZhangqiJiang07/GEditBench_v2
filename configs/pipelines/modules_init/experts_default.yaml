@@ -1,0 +1,20 @@
+# Default experts (primitives) setting
+# ---- FORMAT ----
+# expert-name:
+#   module specific config 1: value
+#   module specific config 2: value
+# ----------------
+
+_base_:
+  user_config: "../user_config.yaml"
+
+face-detector:
+  min_detection_confidence: 0.5
+
+hair-segmenter:
+  model_path: ${user_config.model_paths.hair_segmentation_path}
+
+human-segmenter:
+  model_selection: 1
+  threshold: 0.5
+  

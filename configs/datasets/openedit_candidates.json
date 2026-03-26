@@ -1,0 +1,19 @@
+{
+    "bagel": "/data/auto_gen/OpenEdit/bagel_generation_results.jsonl",
+    "flux2_dev": "/data/auto_gen/OpenEdit/flux.2_dev_generation_results.jsonl",
+    "flux2_dev_turbo": "/data/auto_gen/OpenEdit/flux.2_dev_turbo_generation_results.jsonl",
+    "flux2_klein_4b": "/data/auto_gen/OpenEdit/flux.2_klein_4b_generation_results.jsonl",
+    "flux2_klein_9b": "/data/auto_gen/OpenEdit/flux.2_klein_9b_generation_results.jsonl",
+    "gemini": "/data/auto_gen/OpenEdit/gemini_generation_results.jsonl",
+    "glm_image": "/data/auto_gen/OpenEdit/glm_image_generation_results.jsonl",
+    "kontext": "/data/auto_gen/OpenEdit/kontext_generation_results.jsonl",
+    "longcat_image_edit": "/data/auto_gen/OpenEdit/longcat_image_edit_generation_results.jsonl",
+    "omnigen2": "/data/auto_gen/OpenEdit/omnigen2_generation_results.jsonl",
+    "gpt_image_1d5": "/data/auto_gen/OpenEdit/openai_generation_results.jsonl",
+    "qwen_image_edit": "/data/auto_gen/OpenEdit/qwen-image-edit_generation_results.jsonl",
+    "qwen_image_edit_2509": "/data/auto_gen/OpenEdit/qwen-image-edit-2509_generation_results.jsonl",
+    "qwen_image_edit_2511": "/data/auto_gen/OpenEdit/qwen-image-edit-2511_generation_results.jsonl",
+    "seedream4d5": "/data/auto_gen/OpenEdit/seedream4d5_generation_results.jsonl",
+    "step1x_editv1p2": "/data/auto_gen/OpenEdit/step1x_edit1.2_generation_results.jsonl",
+    "fire_red_image_edit_1p1": "/data/auto_gen/OpenEdit/FireRed-Image-Edit-1.1_generation_results.jsonl"
+}

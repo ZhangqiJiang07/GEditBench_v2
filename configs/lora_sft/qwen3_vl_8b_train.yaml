@@ -1,0 +1,81 @@
+# >>>>> Model Configuration
+model_name_or_path: '/mnt/jfs/model-zoo/Qwen/Qwen3-VL-8B-Instruct'
+
+
+
+
+# >>>>> Data Configuration
+train_json_list:
+  - "/data/assess_model/data/consistency/train/background_change_1500prompts.json"
+  - "/data/assess_model/data/consistency/train/camera_motion_1500prompts.json"
+  - "/data/assess_model/data/consistency/train/color_alter_1500prompts.json"
+  - "/data/assess_model/data/consistency/train/cref_1500prompts.json"
+  - "/data/assess_model/data/consistency/train/enhancement_1500prompts.json"
+  - "/data/assess_model/data/consistency/train/material_alter_1500prompts.json"
+  - "/data/assess_model/data/consistency/train/object_extraction_1500prompts.json"
+  - "/data/assess_model/data/consistency/train/oref_1500prompts.json"
+  - "/data/assess_model/data/consistency/train/ps_human_1500prompts.json"
+  - "/data/assess_model/data/consistency/train/size_adjustment_1500prompts.json"
+  - "/data/assess_model/data/consistency/train/sref_1500prompts.json"
+  - "/data/assess_model/data/consistency/train/style_transfer_1500prompts.json"
+  - "/data/assess_model/data/consistency/train/subject_add_1500prompts.json"
+  - "/data/assess_model/data/consistency/train/subject_remove_1500prompts.json"
+  - "/data/assess_model/data/consistency/train/subject_replace_1500prompts.json"
+  - "/data/assess_model/data/consistency/train/tone_transfer_1500prompts.json"
+eval_json_list:
+  - "/data/assess_model/data/consistency/validation_set.json"
+image_min_pixels: 262144 # 256 * 32 * 32
+image_max_pixels: 1310720 # 1280 * 32 * 32
+prompt_info:
+  assets_dir: "assets"
+  prompt_id: "vlm/assessment/visual_consistency/pairwise"
+  version: "v1"
+
+
+
+
+# >>>>> Training Configuration
+output_dir: ''
+
+# model settings
+freeze_vision_tower: True
+freeze_llm: True
+freeze_merger: True
+disable_flash_attn2: False
+remove_unused_columns: False
+
+# training settings
+num_train_epochs: 3
+per_device_train_batch_size: 2
+gradient_accumulation_steps: 1 # GLOBAL_BATCH_SIZE / (BATCH_PER_DEVICE * NUM_DEVICES)
+learning_rate: 2.0e-6
+warmup_ratio: 0.05 # warmup阶段占总训练步数的比例
+lr_scheduler_type: "cosine" #"constant_with_warmup"
+logging_steps: 1
+report_to: "tensorboard"
+save_strategy: "steps" # 1个step=gradient_accumulation_steps次反向传播=1次权重更新
+save_steps: 1000
+gradient_checkpointing: True
+gradient_checkpointing_kwargs: {"use_reentrant": False}
+weight_decay: 0.1
+
+# LoRA settings
+lora_enable: True
+vision_lora: False
+use_dora: False
+lora_rank: 64
+lora_alpha: 128
+lora_dropout: 0.05
+num_lora_modules: -1
+lora_namespan_exclude: "['lm_head', 'embed_tokens']"
+use_liger_kernel: True
+
+
+
+
+# >>>>> System Configuration
+bf16: True
+fp16: False
+torch_dtype: "bfloat16"
+deepspeed: /data/open_edit/src/autotrain/ds_configs/zero2.json
+dataloader_num_workers: 8

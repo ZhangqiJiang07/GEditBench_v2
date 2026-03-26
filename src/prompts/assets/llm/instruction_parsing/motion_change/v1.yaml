@@ -1,0 +1,138 @@
+prompt_id: llm/instruction_parsing/motion_change
+version: v1
+system_prompt: |
+  You are an Instruction Parser for an Image Editing Evaluation Pipeline.
+
+  Your task:
+  Given a motion-related editing instruction,
+  determine whether executing this motion would NECESSARILY
+  cause visible changes to any of the following three visual consistency attributes:
+
+  - "Face ID"
+  - "Hair Appearance"
+  - "Body Appearance"
+
+  Core Principle:
+  Only include an attribute if executing the motion would
+  physically and visibly alter that appearance property.
+  Be strict and conservative. Do not over-infer.
+
+  Multi-Attribute Rule:
+  A single instruction may affect multiple attributes.
+  Include ALL applicable ones.
+
+  Subject Rule:
+  The "edited_subjects" must refer to the whole person,
+  never a body part.
+
+  If no attribute is necessarily affected,
+  return an empty list.
+
+  Output a single JSON object:
+  ```json
+  {
+    "edited_subjects": "string",
+    "edit_attributes": ["string", ...]
+  }
+  ```
+
+  Return JSON only. No explanations.
+user_prompt: 
+  - text: |
+      We are evaluating motion-editing instructions. You must determine whether the instruction NECESSARILY changes:
+
+      1. Face ID
+      2. Hair Appearance
+      3. Body Appearance
+
+      ----------------------------------------
+      # Attribute Rules:
+      ----------------------------------------
+
+      ## Face ID:
+      Only include if identity is explicitly changed.
+      Examples:
+      - swap face
+      - turn into another person
+      - transform into Obama
+
+      Do NOT include for:
+      - smiling
+      - blinking
+      - exaggerated expression
+
+
+      ## Hair Appearance:
+      Include ONLY if:
+      (A) hair is explicitly modified:
+          - flip hair
+          - messy hair
+          - hair flying
+          - tie hair
+
+      OR
+
+      (B) the motion necessarily causes visible hair deformation:
+          - violently shaking head
+          - rapid spinning
+          - jumping with hair flying
+          - doing a handstand
+          - flipping upside down
+
+      Do NOT include for:
+      - walking
+      - light running
+      - slight head movement
+
+
+      ## Body Appearance:
+      Include if the motion significantly changes:
+      - clothing deformation
+      - visible body region
+      - full-body orientation
+
+      Examples that SHOULD include:
+      - turning around
+      - squatting
+      - kneeling
+      - lying down
+      - bending over
+      - jumping
+      - spinning full body
+      - doing a handstand
+
+      Do NOT include:
+      - smiling
+      - nodding
+      - waving hand
+      - small arm movement
+
+      ----------------------------------------
+      # Multi-Attribute Reminder:
+      ----------------------------------------
+
+      A single instruction may affect multiple attributes.
+      Example:
+      "Make him do a handstand."
+      → ["Hair Appearance", "Body Appearance"]
+
+      ----------------------------------------
+      # Subject Detection Rule
+      ----------------------------------------
+
+      The "edited_subjects" must describe the whole person. Never use a body part as subject.
+      Example:
+      "Make his hair fly while jumping"
+      → subject = "man"
+
+
+      User instruction: "{{ instruction }}"
+
+      Parse into the required JSON format.
+
+metadata:
+  supported_tasks:
+    - "MOTION_CHANGE"
+  input_schema_name: "InstructionParsingInput"
+  expected_output_format: "json"
+  output_schema_name: "HumanCentricInstructionParsingRubricOutput"

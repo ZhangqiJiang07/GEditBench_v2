@@ -1,0 +1,65 @@
+_base_:
+  pipes_default: "../modules_init/pipes_default.yaml"
+  experts_default: "../modules_init/experts_default.yaml"
+
+name: human-centric
+support_task:
+  - motion_change
+
+parser_grounder_config:
+  instruction_parser:
+    default_config: ${pipes_default.instruction_parser}
+    init_config:
+      backend: vllm
+      model_name: Qwen3-4B-Instruct-2507
+      prompt_info:
+        prompt_id: llm/instruction_parsing/motion_change
+        version: v1
+  general_grounder:
+    default_config: ${pipes_default.general_grounder}
+    init_config:
+      backend: vllm
+      model_name: Qwen3-VL-8B-Instruct
+      prompt_info:
+        prompt_id: vlm/grounding/general_grounding
+        version: v1
+
+
+expert_configs:
+  face-detector: ${experts_default.face-detector}
+  human-segmenter: ${experts_default.human-segmenter}
+  hair-segmenter: ${experts_default.hair-segmenter}
+
+
+metric_configs:
+  lpips:
+    pipe_name: lpips-pipe
+    default_config: ${pipes_default.lpips-pipe}
+    init_config:
+    scope: 'unedit_area'
+
+  bg_faceID_sim:
+    pipe_name: face-identity-pipe
+    default_config: ${pipes_default.face-identity-pipe}
+    init_config:
+    scope: 'unedit_area'
+  
+  face_ID_sim:
+    pipe_name: face-identity-pipe
+    default_config: ${pipes_default.face-identity-pipe}
+    init_config: 
+    scope: 'edit_area'
+
+  hair_high_frequency_diff:
+    pipe_name: hair-consistency-pipe
+    default_config: 
+    scope: 'edit_area'
+  
+  body_appearance_dino_cosine_sim:
+    pipe_name: body-appearance-pipe
+    default_config: ${pipes_default.body-appearance-pipe}
+    init_config:
+    scope: 'edit_area'
+    runtime_params:
+      face_bbox_pad_ratio: 0.3
+      patch_mask_threshold: 0.1

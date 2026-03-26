@@ -1,0 +1,54 @@
+_base_:
+  pipes_default: "../modules_init/pipes_default.yaml"
+  experts_default: "../modules_init/experts_default.yaml"
+
+name: object-centric
+support_task:
+  - subject_remove
+  - object_remove
+  - subject_removal
+  - object_removal
+
+parser_grounder_config:
+  instruction_parser:
+    default_config: ${pipes_default.instruction_parser}
+    init_config:
+      backend: vllm
+      model_name: Qwen3-4B-Instruct-2507
+      prompt_info:
+        prompt_id: llm/instruction_parsing/basic_object
+        version: v1
+  general_grounder:
+    default_config: ${pipes_default.general_grounder}
+    init_config:
+      backend: vllm
+      model_name: Qwen3-VL-8B-Instruct
+      prompt_info:
+        prompt_id: vlm/grounding/general_grounding
+        version: v1
+
+
+metric_configs:
+  lpips:
+    pipe_name: lpips-pipe
+    default_config: ${pipes_default.lpips-pipe}
+    init_config:
+    scope: 'unedit_area'
+
+  emd:
+    pipe_name: clip-pipe
+    default_config: ${pipes_default.clip-pipe}
+    init_config:
+    scope: 'unedit_area'
+    runtime_params:
+      patch_mask_threshold: 0.1
+  
+  ssim:
+    pipe_name: ssim-pipe
+    default_config:
+    init_config:
+    scope: 'unedit_area'
+    runtime_params:
+      win_size: 11
+      win_sigma: 1.5
+    

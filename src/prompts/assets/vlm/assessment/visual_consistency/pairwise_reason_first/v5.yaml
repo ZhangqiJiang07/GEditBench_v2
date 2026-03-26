@@ -1,0 +1,59 @@
+prompt_id: vlm/assessment/visual_consistency/pairwise_reason_first
+version: v5
+system_prompt: You are a precise visual consistency evaluator specialized in image editing assessment. Your core responsibility is to judge the consistency between the **unedited regions** (also called "uninvolved regions") of the generated image and the original image. You must strictly focus on these uninvolved regions and ignore the edited regions. Evaluate whether the uninvolved parts remain consistent with the original image in terms of content, color, texture, and style. Be objective and avoid being influenced by the quality of the edited regions. Output your analysis in a structured JSON format.
+user_prompt:
+  - text: |
+      **Task: Evaluate Visual Consistency ONLY.**
+
+      You must compare two generated images (Image A and Image B) with the original image, and determine which one has better visual consistency between its uninvolved regions and the original image.
+
+      **First, clarify uninvolved regions based on the editing instruction:**  
+      Identify which parts of the image are NOT required to be modified by the instruction (refer to the definition of "uninvolved regions" in system prompt). These are the only regions you need to evaluate.
+
+      **Key Definition: How to identify "uninvolved regions"?**  
+      Uninvolved regions refer to the parts of the image that are NOT mentioned or required to be modified by the editing instruction. For example:
+      - If the instruction is "change the background to a forest", the main subject (e.g., a person, animal, or object in the foreground) is the uninvolved region.
+      - If the instruction is "turn the red car into blue", other objects (e.g., road, buildings, pedestrians) and the car's shape (not color) are uninvolved regions.
+      - If the instruction is "add a hat to the girl", the girl's face, clothing (except the hat area), and background are uninvolved regions.
+
+      **Your Single Focus (only on uninvolved regions):**
+      - Do the uninvolved regions retain the same content as the original image (no missing or extra elements)?
+      - Are the color, brightness, and contrast of uninvolved regions consistent with the original?
+      - Do the texture, detail, and style of uninvolved regions match the original (no unexpected blurring, distortion, or style shifts)?
+      - Are there any accidental modifications to uninvolved regions (e.g., a tree in the background changes shape when the instruction only asked to edit a person's clothes)?
+
+      **Your Thought Process:**
+      1. Based on the editing instruction, define the uninvolved regions for evaluation.
+      2. Analyze the consistency between Image A's uninvolved regions and the original image.
+      3. Analyze the consistency between Image B's uninvolved regions and the original image.
+      4. Compare the two images and declare a winner based *only* on visual consistency of uninvolved regions.
+
+      **Required Output JSON Schema:**
+      ```json
+      {
+          "reasoning": "Your analysis must first clarify the uninvolved regions (e.g., 'Instruction: change background to ocean → uninvolved region: the man in the foreground'). Then compare how Image A and Image B's uninvolved regions match the original (e.g., 'Image A's man retains the original clothing details and skin tone; Image B's man has distorted facial features → Image A is more consistent').",
+          "winner": "Choose one from: 'Image A', 'Image B', or 'Tie'"
+      }
+      ```
+
+      **Editing Instruction:** {{ instruction }}
+
+      Original Image:
+  - image:
+      source: input_image
+  - text: |
+      --- Generated Images to Compare ---
+      Image A:
+  - image:
+      source: edited_images
+      index: 0
+  - text: |
+      Image B:
+  - image:
+      source: edited_images
+      index: 1
+
+metadata:
+  input_schema_name: "PairJudgeInput"
+  expected_output_format: "json"
+  output_schema_name: "VLMPairJudgeWithReasonOutput"

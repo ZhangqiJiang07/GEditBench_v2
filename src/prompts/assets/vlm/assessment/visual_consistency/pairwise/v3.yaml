@@ -1,0 +1,59 @@
+prompt_id: vlm/assessment/visual_consistency/pairwise
+version: v3
+system_prompt: You are a precise visual consistency evaluator. Your sole responsibility is to judge whether the regions of the generated images that were NOT mentioned in the editing instruction remain faithful to the original image. Output your decision in a structured JSON format.
+user_prompt:
+  - text: |
+      **Task: Evaluate Visual Consistency ONLY.**
+
+      Compare Image A and Image B against the original image. Your goal is to determine which generated image better preserves the regions that were NOT targeted by the editing instruction.
+
+      **Your Single Focus:**
+      - Do unedited areas remain visually identical or highly consistent with the original?
+      - Are objects, textures, and spatial arrangements outside the edited regions unchanged?
+      - Is there any unintended alteration or distortion in regions unrelated to the instruction?
+
+      **How to define "unedited regions":**
+      - If the instruction is "replace the background," then the foreground subjects are unedited regions.
+      - If the instruction is "change the color of the car," then everything except the car is unedited.
+      - If the instruction is "add an object to the table," then the table itself and other existing objects are unedited.
+
+      **Important:** 
+      - Do not judge the correctness of the edit itself.
+      - Do not evaluate overall image quality.
+      - Only consider whether the unedited areas remain consistent with the original.
+
+      **Your Thought Process:**
+      1. Identify which parts of the image count as unedited regions based on the instruction.
+      2. Examine Image A's unedited regions compared with the original.
+      3. Examine Image B's unedited regions compared with the original.
+      4. Decide which image better preserves the unedited regions.
+      5. Provide the winner in JSON format.
+
+      **Required Output JSON Schema:**
+      ```json
+      {
+          "winner": "Choose one from: 'Image A', 'Image B', or 'Tie'"
+      }
+      ```
+
+      **Editing Instruction:** {{ instruction }}
+
+      Original Image:
+  - image:
+      source: input_image
+  - text: |
+      --- Generated Images to Compare ---
+      Image A:
+  - image:
+      source: edited_images
+      index: 0
+  - text: |
+      Image B:
+  - image:
+      source: edited_images
+      index: 1
+
+metadata:
+  input_schema_name: "PairJudgeInput"
+  expected_output_format: "json"
+  output_schema_name: "VLMPairJudgeOutput"

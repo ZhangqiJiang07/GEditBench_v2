@@ -1,0 +1,18 @@
+_base_:
+  pipes_default: "../modules_init/pipes_default.yaml"
+  experts_default: "../modules_init/experts_default.yaml"
+
+name: vlm-as-a-judge
+
+metric_configs:
+  pair-judge:
+    pipe_name: pairwise-judge
+    default_config: ${pipes_default.pairwise-judge}
+    init_config:
+      backend: vllm
+      model_name: PVC-Judge
+      ip_address: 100.109.108.99
+      port: ${client_config.vlm_port}
+      prompt_info:
+        prompt_id: vlm/assessment/visual_consistency/pairwise
+        version: v1

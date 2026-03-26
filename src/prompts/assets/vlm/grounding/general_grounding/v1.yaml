@@ -1,0 +1,37 @@
+prompt_id: vlm/grounding/general_grounding
+version: v1
+system_prompt: You are an expert Vision-Language Model specializing in visual grounding and object localization. Your task is to analyze an image and a list of text descriptions, then output the precise bounding box for each description.
+user_prompt:
+  - text: |
+      You will be provided with an `[Image]` and an `[Object List]`.
+      Your task is to analyze the image and locate a bounding box for **each** description in the list, following all rules from your system prompt.
+
+      You must follow these **Critical Rules**:
+      1.  **Handle "Find Existing"**: If a description clearly refers to an object that *exists* in the image (e.g., "the red car on the left"), you must return the bounding box of that specific object.
+      2.  **Handle "Not Found"**: If an object, reference object, or region absolutely cannot be located in the image based on the description, you must return `None` for its bounding box. Do not guess.
+      3.  **Strict JSON Output**: You must output a single JSON list of grounding dictionaries in the exact schema provided.
+
+      **Input `[Object List]` Schema:**
+      `[Object List]`: ['description 1', 'description 2', '...', 'description N']
+
+      **Required Output JSON Schema:**
+      ```json
+      [
+          {"bbox_2d": [x1, y1, x2, y2], "label": 'description 1'},
+          {"bbox_2d": [x1, y1, x2, y2], "label": 'description 2'},
+          ...
+          {"bbox_2d": None, "label": 'description N'}
+      ]
+      ```
+
+      `[Object List]`: {{ instruction }}
+
+      `[Image]`:
+  - image:
+      source: grounding_image
+  - text: |
+
+      Report bbox coordinates in Required JSON format.
+
+metadata:
+  expected_output_format: "json"

@@ -1,0 +1,80 @@
+prompt_id: llm/instruction_parsing/basic_object
+version: v1
+system_prompt: You are an expert language analysis assistant. Your task is to analyze an `[Editing Instruction]` and its `[Edit Task]` to extract a complete and detailed description of all target objects. The description must contain **all** information from the instruction (e.g., attributes, colors, counts, and specific positional/relational information) that would help a Visual Language Model (VLM) precisely identify the target of the edit on an image. Your output must be a JSON list of strings, where each string is a self-contained, detailed description of one edit target. You must strictly adhere to the requested JSON output format.
+user_prompt:
+  - text: |
+      You will be provided with two inputs:
+      1.  `[Editing Instruction]`: A text command (e.g., "add a small dog next to the tree").
+      2.  `[Edit Task]`: A pre-defined tag describing the action (e.g., `SUBJECT_ADD`, `SUBJECT_REMOVE`, `COLOR_ALTER`, and `MATERIAL_ALTER`).
+
+      **Your Task**
+      1.  Carefully analyze the `[Editing Instruction]` and `[Edit Task]`.
+      2.  Extract **all** target editing objects mentioned.
+      3.  For each object, create a **complete, self-contained description** that includes all details provided in the instruction.
+
+      **Critical Rules**
+      1.  **Include All Details**: This is the most important rule. Your extracted string **must** include:
+          - **Attributes**: (e.g., "small", "red", "two").
+          - **Positional/Relational Info**: (e.g., "next to the tree", "on the left", "on the woman"). This information is crucial for the VLM to locate the target and **must** be part of the extracted string.
+
+      2.  **Handle Groups vs. Distinct Objects**: This rule is crucial.
+          - **DO NOT SPLIT Conceptual Groups**: If the instruction describes multiple items as a **single conceptual group** (e.g., "two small dogs sitting face-to-face", "a bouquet of flowers", "a pair of shoes"), you must extract them as **ONE** string, preserving the original count and shared description.
+          - **DO SPLIT Distinct Objects**: If the instruction lists **clearly distinct objects** (e.g., "a cat and two balls..."), you must create a separate string for each distinct object type, distributing the shared context (like location) to each.
+
+      3.  **Do Not Invent Information**: Extract *only* the details present in the `[Editing Instruction]`.
+
+      4.  **Use `[Edit Task]` as Context**:
+          - For `SUBJECT_ADD`, the description (e.g., "a small dog next to the tree") defines a *new* object and its *intended location* relative to existing reference objects (like "the tree").
+          - For `SUBJECT_REMOVE`, `COLOR_ALTER` or `MATERIAL_ALTER`, the description (e.g., "the red car on the left") defines an *existing* object/area to be found and acted upon.
+
+      **Required Output JSON Schema:**
+      ```json
+      {
+          "edited_objects": ["description1", "description2", "..."]
+      }
+      ```
+
+      Example 1:
+      [Editing Instruction]: "Remove the two men on the left and the red car"
+      [Edit Task]: `SUBJECT_REMOVE`
+      Output:
+      ```json
+      {
+          "edited_objects": ["the two men on the left", "the red car"]
+      }
+      ```
+
+      Example 2:
+      [Editing Instruction]: "Add a cat and two blue balls between the sofa and the chair"
+      [Edit Task]: `SUBJECT_ADD`
+      Output:
+      ```json
+      {
+          "edited_objects": ["a cat between the sofa and the chair", "two blue balls between the sofa and the chair"]
+      }
+      ```
+
+      Example 3:
+      [Editing Instruction]: "alter the color of doughnut to silver"
+      [Edit Task]: `COLOR_ALTER`
+      Output:
+      ```json
+      {
+          "edited_objects": ["the doughnut"]
+      }
+
+
+      [Editing Instruction]: "{{ instruction }}"
+      [Edit Task]: `{{ edit_task }}`
+      ```
+
+
+metadata:
+  supported_tasks:
+    - "SUBJECT_ADD"
+    - "SUBJECT_REMOVE"
+    - "COLOR_ALTER"
+    - "MATERIAL_ALTER"
+  input_schema_name: "BasicObjectInstructionParsingInput"
+  expected_output_format: "json"
+  output_schema_name: "ObjectCentricInstructionParsingOutput"

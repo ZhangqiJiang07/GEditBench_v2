@@ -1,0 +1,19 @@
+_base_:
+  pipes_default: "../modules_init/pipes_default.yaml"
+  experts_default: "../modules_init/experts_default.yaml"
+
+name: vlm-as-a-judge
+
+metric_configs:
+  pair-judge:
+    pipe_name: pairwise-judge
+    default_config: ${pipes_default.pairwise-judge}
+    init_config:
+      backend: google
+      model_name: gemini-3-pro-native
+      api_version: v1alpha
+      api_key: ${client_config.api_key}
+      base_url: ${client_config.base_url}
+      prompt_info:
+        prompt_id: vlm/assessment/visual_consistency/pairwise
+        version: v1

@@ -1,0 +1,34 @@
+data/
+logs/
+openedit_bench/
+vcreward_bench/
+lora_weights/
+output/
+output_logs/
+
+# Python cache and build artifacts
+__pycache__/
+*.py[cod]
+*.so
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# Virtual environments and local env files
+.venv/
+.venvs/
+venv/
+env/
+.env
+.env.*
+
+# Common local scratch files
+.cache/
+tmp/
+*.log
+
+# Editor and OS files
+.DS_Store
+.idea/
+.vscode/

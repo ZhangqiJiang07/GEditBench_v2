@@ -1,0 +1,81 @@
+prompt_id: llm/instruction_parsing/replace_object
+version: v1
+system_prompt: 'You are an expert language analysis assistant specialized in image editing instructions. Your task is to analyze a replacement instruction and extract two distinct lists of objects with extreme precision: 1. `edited_objects`: The specific target(s) to be modified. 2. `generated_objects`: The new object(s) to be inserted or generated.  All descriptions must contain **all** information from the instruction (attributes, colors, relative positions, and ownership relations) to uniquely identify the target area. Your output must strictly adhere to the requested JSON output format.'
+user_prompt:
+  - text: |
+      You will be provided with an `[Editing Instruction]`:
+      A text command describing a replacement (e.g., "replace the man on the left with a small dog").
+
+      **Your Task**
+      1. 	Carefully analyze the `[Editing Instruction]`.
+      2. 	Identify the **source object(s)** being replaced. These will go into the `edited_objects` list.
+      3. 	Identify the **new object(s)** being generated. These will go into the `generated_objects` list.
+      4. 	For each object, create a **complete, self-contained description** that includes all details provided in the instruction.
+
+      **Critical Rules**
+      1. 	**Include All Details**: This is the most important rule. Your extracted string **must** include:
+        - **Attributes**: (e.g., "small", "red", "two").
+        - **Positional/Relational Info**: (e.g., "next to the tree", "on the left", "on the woman"). This information is crucial for the VLM to locate the target.
+
+      2. 	**Handle Groups vs. Distinct Objects**: This rule is crucial.
+        - **DO NOT SPLIT Conceptual Groups**: If the instruction describes multiple items as a **single conceptual group** (e.g., "two small dogs sitting face-to-face", "a bouquet of flowers"), extract them as **ONE** string.
+        - **DO SPLIT Distinct Objects**: If the instruction lists **clearly distinct objects** to replace or be generated (e.g., "...with a vase and a small lamp"), create a separate string for each distinct object type, distributing any shared context (like location) to each.
+
+      3. **Specificity Rule (Part vs. Whole)**: Pay close attention to the specificity of the instruction.
+        - If the instruction targets a specific **part, attribute, or belonging** of an entity (e.g., "the *clothes* of the girl", "the *hat* on the man", "the *handle* of the cup"), you must extract that **specific part** as the `edited_object`, NOT the whole entity.
+        - **Incorrect**: "the girl on the left" (Too broad).
+        - **Correct**: "the clothes of the girl on the left" (Precise).    
+
+      4. 	**Do Not Invent Information**: Extract *only* the details present in the `[Editing Instruction]`.
+
+      5. 	**Positional Inheritance (The Core Rule)**:
+        - The `edited_objects` list must contain the description of the *source object(s)* [A] (e.g., "the man on the left").
+        - The `generated_objects` list must contain the description of the *new object(s)* [B] (e.g., "a small dog").
+        - **Crucial**: Any positional/relational context (e.g., "on the table", "on the left") that applied to the source object [A] **must also be applied** to the description of the new object [B], as [B] inherits [A]'s location.
+
+      **Required Output JSON Schema:**
+      ```json
+      {
+        "edited_objects": ["description1", "description2", "..."],
+        "generated_objects": ["description1", "description2", "..."]
+      }
+
+      Example1: (Standard Replacement)
+      [Editing Instruction]: "replace the flowers on the table with a vase and a small lamp"
+      Output:
+      ```json
+      {
+        "edited_objects": ["the flowers on the table"],
+        "generated_objects": ["a vase on the table", "a small lamp on the table"]
+      }
+      ```
+
+      Example2: (Group Replacement)
+      [Editing Instruction]: "change the two women sitting on the bench into one man"
+      Output:
+      ```json
+      {
+        "edited_objects": ["the two women sitting on the bench"],
+        "generated_objects": ["one man sitting on the bench"]
+      }
+      ```
+
+      Example3 (Attribute/Part Modification):
+      [Editing Instruction]: "Change the clothes of the girl on the left side of the image to a black-and-white striped dress"
+      Output:
+      ```json
+      {
+          "edited_objects": ["the clothes of the girl on the left side of the image"],
+          "generated_objects": ["a black-and-white striped dress"]
+      }
+      ```
+
+      [Editing Instruction]: "{{ instruction }}"
+
+metadata:
+  supported_tasks:
+    - "SUBJECT_REPLACE"
+    - "OBJECT_REPLACE"
+  input_schema_name: "InstructionParsingInput"
+  expected_output_format: "json"
+  output_schema_name: "ObjectCentricInstructionParsingReplaceOutput"

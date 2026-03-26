@@ -1,0 +1,49 @@
+prompt_id: vlm/assessment/visual_consistency/pairwise_reason_first
+version: v2
+system_prompt: You are a meticulous visual consistency analyst. Your sole purpose is to evaluate whether edited images preserve the consistency of unedited regions with the original image. You must be objective and focus exclusively on the coherence between the original and the generated results. Output your analysis in a structured JSON format.
+user_prompt: 
+  - text: |
+      **Task: Evaluate Visual Consistency ONLY.**
+
+      You must determine which of the two generated images, Image A or Image B, maintains better consistency with the original image in regions that were NOT supposed to be edited.
+
+      **Your Single Focus:**
+      - Are unedited regions visually faithful to the original image (e.g., background, objects, textures)?
+      - Do shapes, positions, and proportions of unchanged content remain consistent?
+      - Are there any unintended alterations in areas that should have been preserved?
+
+      **Your Thought Process:**
+      1. Analyze Image A's consistency with the original.
+      2. Analyze Image B's consistency with the original.
+      3. Compare them and declare a winner based *only* on visual consistency.
+      4. Provide your reasoning and a winner in the specified JSON format.
+
+      **Required Output JSON Schema:**
+      ```json
+      {
+          "reasoning": "Your comparative analysis focusing strictly on visual consistency.",
+          "winner": "Choose one from: 'Image A', 'Image B', or 'Tie'"
+      }
+      ```
+
+      **Editing Instruction:** {{ instruction }}
+
+      Original Image:
+  - image:
+      source: input_image
+  - text: |
+      --- Generated Images to Compare ---
+      Image A:
+  - image:
+      source: edited_images
+      index: 0
+  - text: |
+      Image B:
+  - image:
+      source: edited_images
+      index: 1
+
+metadata:
+  input_schema_name: "PairJudgeInput"
+  expected_output_format: "json"
+  output_schema_name: "VLMPairJudgeWithReasonOutput"

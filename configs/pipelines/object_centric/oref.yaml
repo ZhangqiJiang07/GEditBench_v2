@@ -1,0 +1,48 @@
+_base_:
+  pipes_default: "../modules_init/pipes_default.yaml"
+  experts_default: "../modules_init/experts_default.yaml"
+
+name: object-centric
+support_task:
+  - object_reference
+  - oref
+  - object_extraction
+
+parser_grounder_config:
+  instruction_parser:
+    default_config: ${pipes_default.instruction_parser}
+    init_config:
+      backend: vllm
+      model_name: Qwen3-4B-Instruct-2507
+      prompt_info:
+        prompt_id: llm/instruction_parsing/object_reference
+        version: v1
+  general_grounder:
+    default_config: ${pipes_default.general_grounder}
+    init_config:
+      backend: vllm
+      model_name: Qwen3-VL-8B-Instruct
+      prompt_info:
+        prompt_id: vlm/grounding/general_grounding
+        version: v1
+
+
+metric_configs:
+  sam_clip_cls_sim:
+    pipe_name: clip-pipe
+    default_config: ${pipes_default.clip-pipe}
+    init_config:
+      sam: ${pipes_default.sam-pipe}
+    scope: 'edit_area'
+    runtime_params:
+      bg_color: !tuple [255, 255, 255]
+  
+  sam_dino_cls_sim:
+    pipe_name: dino-v3-pipe
+    default_config: ${pipes_default.dino-v3-pipe}
+    init_config:
+      sam: ${pipes_default.sam-pipe}
+    scope: 'edit_area'
+    runtime_params:
+      bg_color: !tuple [255, 255, 255]
+

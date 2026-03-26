@@ -1,0 +1,96 @@
+prompt_id: llm/instruction_parsing/character_reference
+version: v1
+system_prompt: You are an expert language analysis assistant specialized in subject-driven image generation tasks.  Your task is to analyze an `[Editing Instruction]` under the task `SUBJECT_REFERENCE_GENERATION`.  The primary goal is to extract ONLY the base human subject(s) that must be visually referenced from the source image, strictly stripping away any new attributes, clothing, or actions requested by the editing instruction.  You must output a JSON list of strings. Each string must be a concise, visually clear noun phrase representing the original subject's identity.  Do NOT extract newly introduced environments, actions, interactive props, background characters, or target modifications (e.g., new hair color, new clothing).  You must strictly adhere to the requested JSON format.
+user_prompt:
+  - text: |
+      You will be provided with:
+      `[Editing Instruction]`: A text command describing a subject-driven generation task.
+
+      ----------------------------------------
+      Your Task
+      ----------------------------------------
+
+      1. Carefully analyze the instruction to separate the SOURCE identity from the TARGET generation goals.
+      2. Identify which human subject(s) must be referenced from the original/upload image.
+      3. Extract ONLY the base reference subjects, formatting them into explicit noun phrases.
+
+      ----------------------------------------
+      What Counts as a "Reference Subject"
+      ----------------------------------------
+
+      A reference subject is strictly the intrinsic identity of the person from the source image.
+      It answers the question: "Who is being edited?" (e.g., "the main person", "the male subject", "the female subject").
+
+      ----------------------------------------
+      Critical Rules
+      ----------------------------------------
+
+      1. Isolate Source Identity from Target Modifications (CRUCIAL):
+        - You must strictly differentiate between who the subject is (source) and what the instruction wants them to look like or do (target).
+        - If the instruction dictates new physical features (e.g., "purple hair"), new clothing (e.g., "blue-green outfit"), or new expressions (e.g., "make him smile"), these are TARGET modifications. 
+        - You MUST EXCLUDE all target modifications from your extraction. Extract only the base entity (e.g., "the main person").
+
+      2. Handle Pronouns for Visual Grounding:
+        - Downstream vision models need explicit nouns.
+        - If the instruction uses "she/her", resolve it to "the female person" or "the female subject".
+        - If it uses "he/him", resolve it to "the male person" or "the male subject".
+        - If it uses generic terms like "the main subject", extract "the main person" or "the main subject".
+
+      3. Exclude Actions and Environments:
+        - Ignore what the subject is doing or where they are in the new scene.
+        - E.g., for "repairing shoes in a classroom", ignore the action and environment entirely.
+
+      4. Exclude New Characters (Distractors):
+        - Do not extract newly generated background characters (e.g., "a vendor", "students").
+
+      5. Remove Source-Reference Phrases:
+        - Exclude phrases like "from the image", "in the original picture", etc.
+
+      ----------------------------------------
+      Required Output JSON Schema
+      ----------------------------------------
+
+      ```json
+      {
+          "edited_subjects": ["description1", "description2", "..."]
+      }
+      ```
+
+      **Examples**
+      Example 1:
+      [Editing Instruction]: "She is surfing in the water channel of a high-speed railway station."
+      Output:
+      ```json
+      {
+          "edited_subjects": ["the female subject"]
+      }
+      ```
+
+      Example 2:
+      [Editing Instruction]: "Make him sit on a stool in a market tent and receive a coupon from a vendor."
+      Output:
+      ```json
+      {
+          "edited_subjects": ["the male subject"]
+      }
+      ```
+
+      Example 3:
+      [Editing Instruction]: "Generate a school-themed portrait photo, with the main subject repairing shoes in a classroom, purple hair, and blue-green outfit."
+      Output:
+      ```json
+      {
+          "edited_subjects": ["the main person"]
+      }
+      ```
+
+      [Editing Instruction]: "{{ instruction }}"
+
+
+metadata:
+  supported_tasks:
+    - "CREF"
+    - "CHARACTER_REFERENCE"
+  input_schema_name: "InstructionParsingInput"
+  expected_output_format: "json"
+  output_schema_name: "HumanCentricInstructionParsingOutput"

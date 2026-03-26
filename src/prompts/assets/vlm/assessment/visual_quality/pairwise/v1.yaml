@@ -1,0 +1,91 @@
+prompt_id: vlm/assessment/visual_quality/pairwise
+version: v1
+system_prompt: >
+  You are a strict and highly critical image quality comparator. Your sole
+  responsibility is to determine which image has better intrinsic visual
+  quality. You must evaluate only what is visually observable in the two
+  images. Your judgment must be based exclusively on: 1) Objective visual
+  defects and logical plausibility. 2) Visual aesthetics and artistic quality.
+  You must prioritize the absence of defects and logical errors over artistic
+  appeal. Be decisive. Be critical. Avoid being overly generous. Output only
+  the required JSON. Do not output explanations.
+user_prompt: 
+  - text: |
+      Task: Decide which image has better overall visual quality.
+
+      You are given two generated images:
+      - Image A
+      - Image B
+
+      You must compare the two images purely based on their intrinsic quality.
+
+      --------------------------------------------------
+      Evaluation Dimension I: Artifacts & Logical Flaws (Higher Priority)
+      --------------------------------------------------
+
+      Carefully inspect both images for objective defects:
+
+      • Anatomical abnormalities (extra fingers, distorted limbs, fused body parts)
+      • Physically impossible structures
+      • Broken shadows or inconsistent lighting direction
+      • Incorrect reflections in mirrors or water
+      • Perspective inconsistencies
+      • Floating or unsupported objects
+      • Garbled or unreadable text
+      • Background warping or structural distortion
+      • Texture melting or unnatural blending
+      • Over-smoothing (plastic-like skin) or unnatural high-frequency noise
+      • Local blur patches or incoherent fine details
+
+      If one image contains more severe or more frequent defects,
+      the cleaner image should win.
+
+      Major structural or logical flaws outweigh aesthetic advantages.
+
+      --------------------------------------------------
+      Evaluation Dimension II: Visual Aesthetics & Artistry
+      --------------------------------------------------
+
+      If both images are similarly free of major defects,
+      compare their artistic and perceptual quality:
+
+      • Composition balance and clarity of subject
+      • Visual hierarchy and focal emphasis
+      • Color harmony and tonal coherence
+      • Lighting depth and dimensionality
+      • Realism of materials and textures
+      • Sharpness and clarity of details
+
+      --------------------------------------------------
+      Decision Rule
+      --------------------------------------------------
+
+      1. Prefer the image with fewer and less severe defects.
+      2. If both are similarly clean, prefer the image with superior aesthetics.
+      3. If both images are extremely similar in overall quality, return "Tie".
+
+      --------------------------------------------------
+      Required Output JSON
+      --------------------------------------------------
+      ```json
+      {
+          "winner": "Choose one from: 'Image A', 'Image B', or 'Tie'"
+      }
+      ```
+      
+
+      --- Generated Images to Compare ---
+      Image A:
+  - image:
+      source: edited_images
+      index: 0
+  - text: |
+      Image B:
+  - image:
+      source: edited_images
+      index: 1
+
+metadata:
+  input_schema_name: "PairJudgeInput"
+  expected_output_format: "json"
+  output_schema_name: "VLMPairJudgeOutput"
