@@ -8,8 +8,8 @@ logger = get_logger()
 @CLIENT_REGISTRY.register("api")
 class OpenAIAPIClient(BaseClient):
     def __init__(self,
-        # base_url: str = "https://models-proxy.stepfun-inc.com/v1/chat/completions",
-        # api_key: str = "ak-92d6efba47h3ijk05l8mno61pqrs29tuv4c7w3z",
+        # base_url: str = "https://api.openai.com/v1/chat/completions",
+        # api_key: str = "YOUR_OPENAI_API_KEY",
         model_name: str = "gpt-4o",
         **kwargs
     ):

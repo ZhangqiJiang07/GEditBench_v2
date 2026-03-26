@@ -1,0 +1,19 @@
+{
+    "bagel": "data/geditv2_candidates/bagel_generation_results.jsonl",
+    "flux2_dev": "data/geditv2_candidates/flux.2_dev_generation_results.jsonl",
+    "flux2_dev_turbo": "data/geditv2_candidates/flux.2_dev_turbo_generation_results.jsonl",
+    "flux2_klein_4b": "data/geditv2_candidates/flux.2_klein_4b_generation_results.jsonl",
+    "flux2_klein_9b": "data/geditv2_candidates/flux.2_klein_9b_generation_results.jsonl",
+    "gemini": "data/geditv2_candidates/gemini_generation_results.jsonl",
+    "glm_image": "data/geditv2_candidates/glm_image_generation_results.jsonl",
+    "kontext": "data/geditv2_candidates/kontext_generation_results.jsonl",
+    "longcat_image_edit": "data/geditv2_candidates/longcat_image_edit_generation_results.jsonl",
+    "omnigen2": "data/geditv2_candidates/omnigen2_generation_results.jsonl",
+    "gpt_image_1d5": "data/geditv2_candidates/openai_generation_results.jsonl",
+    "qwen_image_edit": "data/geditv2_candidates/qwen-image-edit_generation_results.jsonl",
+    "qwen_image_edit_2509": "data/geditv2_candidates/qwen-image-edit-2509_generation_results.jsonl",
+    "qwen_image_edit_2511": "data/geditv2_candidates/qwen-image-edit-2511_generation_results.jsonl",
+    "seedream4d5": "data/geditv2_candidates/seedream4d5_generation_results.jsonl",
+    "step1x_editv1p2": "data/geditv2_candidates/step1x_edit1.2_generation_results.jsonl",
+    "fire_red_image_edit_1p1": "data/geditv2_candidates/FireRed-Image-Edit-1.1_generation_results.jsonl"
+}

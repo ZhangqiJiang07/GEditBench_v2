@@ -11,7 +11,7 @@ metric_configs:
     init_config:
       backend: api
       model_name: gpt-5.1
-      api_key: "ak-92d6efba47h3ijk05l8mno61pqrs29tuv4c7w3z"
+      api_key: "${env:OPENAI_API_KEY:YOUR_OPENAI_API_KEY}"
       base_url: ${client_config.base_url}
       prompt_info:
         prompt_id: vlm/assessment/visual_consistency/pairwise

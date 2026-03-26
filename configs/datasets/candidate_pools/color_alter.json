@@ -1,13 +1,13 @@
 {
-    "meta_info": "/data/open_edit/data/b_filtered_img_prompt_pair_data/color_alter/meta_info.jsonl",
+    "meta_info": "data/b_filtered_img_prompt_pair_data/color_alter/meta_info.jsonl",
     "models": {
-        "Gemini2.5": "/data/open_edit/data/b_filtered_img_prompt_pair_data/color_alter/gemini_generation_results.jsonl",
-        "Qwen-Image-Edit-2511": "/data/open_edit/data/b_filtered_img_prompt_pair_data/color_alter/qwen-image-edit-2511_generation_results.jsonl",
-        "Qwen-Image-Edit-2509": "/data/open_edit/data/b_filtered_img_prompt_pair_data/color_alter/qwen-image-edit-2509_generation_results.jsonl",
-        "Qwen-Image-Edit": "/data/open_edit/data/b_filtered_img_prompt_pair_data/color_alter/qwen-image-edit_generation_results.jsonl",
-        "Kontext": "/data/open_edit/data/b_filtered_img_prompt_pair_data/color_alter/kontext_generation_results.jsonl",
-        "Bagel": "/data/open_edit/data/b_filtered_img_prompt_pair_data/color_alter/bagel_generation_results.jsonl",
-        "Step1x-Edit-v1p2": "/data/open_edit/data/b_filtered_img_prompt_pair_data/color_alter/step1x_edit1.2_generation_results.jsonl",
-        "Step1x-Edit-v1p2-preview": "/data/open_edit/data/b_filtered_img_prompt_pair_data/color_alter/step1x_edit1.2-preview_generation_results.jsonl"
+        "Gemini2.5": "data/b_filtered_img_prompt_pair_data/color_alter/gemini_generation_results.jsonl",
+        "Qwen-Image-Edit-2511": "data/b_filtered_img_prompt_pair_data/color_alter/qwen-image-edit-2511_generation_results.jsonl",
+        "Qwen-Image-Edit-2509": "data/b_filtered_img_prompt_pair_data/color_alter/qwen-image-edit-2509_generation_results.jsonl",
+        "Qwen-Image-Edit": "data/b_filtered_img_prompt_pair_data/color_alter/qwen-image-edit_generation_results.jsonl",
+        "Kontext": "data/b_filtered_img_prompt_pair_data/color_alter/kontext_generation_results.jsonl",
+        "Bagel": "data/b_filtered_img_prompt_pair_data/color_alter/bagel_generation_results.jsonl",
+        "Step1x-Edit-v1p2": "data/b_filtered_img_prompt_pair_data/color_alter/step1x_edit1.2_generation_results.jsonl",
+        "Step1x-Edit-v1p2-preview": "data/b_filtered_img_prompt_pair_data/color_alter/step1x_edit1.2-preview_generation_results.jsonl"
     }
 }

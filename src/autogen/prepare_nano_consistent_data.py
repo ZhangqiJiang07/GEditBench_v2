@@ -18,6 +18,7 @@ def _bootstrap_import_path():
 _bootstrap_import_path()
 
 from core.cache_manager import CacheManager, generate_cache_key
+from common_utils.project_paths import DATA_ROOT
 
 TASK_MAP = {
     'background_change': 'background',
@@ -35,7 +36,7 @@ def parse_args():
     )
     parser.add_argument(
         '--output-dir', type=str,
-        default="/data/open_edit/data/a_raw_img_prompt_pair_data",
+        default=str(DATA_ROOT / "a_raw_img_prompt_pair_data"),
         help='Path to save the raw nano consistent data.'
     )
     parser.add_argument(

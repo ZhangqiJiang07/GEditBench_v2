@@ -1,6 +1,11 @@
 import os
 import sys
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from pathlib import Path
+
+SRC_ROOT = Path(__file__).resolve().parents[1]
+PROJECT_ROOT = SRC_ROOT.parent
+if str(SRC_ROOT) not in sys.path:
+    sys.path.insert(0, str(SRC_ROOT))
 from common_utils.logging_util import logger_init
 
 import json
@@ -10,14 +15,15 @@ from pvc_judge import PairWiseJudge
 from prompts.prompt_manager import PromptAssetStore
 from common_utils.dataset_loader import load_dataset
 from core.cache_manager import CacheManager, generate_cache_key
+from common_utils.project_paths import CONFIGS_ROOT, DEFAULT_BENCHMARK_NAME, OUTPUT_ROOT, normalize_benchmark_name
 
-CACHE_ROOT = "/mnt/jfs/lora_models_cache"
+CACHE_ROOT = os.path.expanduser(os.environ.get("GEDITV2_MERGED_MODEL_CACHE_DIR", "~/.cache/geditv2/merged_models"))
 
-def infer_openedit_bench(judge, dataset, generation_config, cache_manager, output_file):
+def infer_geditv2_bench(judge, dataset, generation_config, cache_manager, output_file):
     item_to_process, all_results = dataset.load_cache(cache_manager)
     logger.info(f"Loaded {len(all_results)} cached results. {len(item_to_process)} items left to process.")
     if item_to_process:
-        for item_key in tqdm(item_to_process, desc="Evaluating OpenEdit Bench"):
+        for item_key in tqdm(item_to_process, desc="Evaluating GEditBench v2"):
             item = dataset.get_item(item_key)
             winner, item_res_dict = judge(item, generation_config)
             if winner is None or winner.lower() not in ['image a', 'a', 'image_a', 'imagea', 'image b', 'b', 'image_b', 'imageb', 'tie', 'equal']:
@@ -98,9 +104,9 @@ def parse_args():
     parser.add_argument("--lora-model-path", type=str, required=True)
     parser.add_argument("--base-model-path", type=str, required=True)
     parser.add_argument("--use-flash-attn", action='store_true')
-    parser.add_argument("--bmk", type=str, default="editscore")
-    parser.add_argument("--bmk-config", type=str, default="/data/open_edit/configs/datasets/bmk.json")
-    parser.add_argument("--output-dir", type=str, default="/data/open_edit/output/eval_res")
+    parser.add_argument("--bmk", type=str, default="geditv2")
+    parser.add_argument("--bmk-config", type=str, default=str(CONFIGS_ROOT / "datasets" / "bmk.json"))
+    parser.add_argument("--output-dir", type=str, default=str(OUTPUT_ROOT / "eval_res"))
     parser.add_argument("--max-retries", type=int, default=3)
     parser.add_argument("--max-new-tokens", type=int, default=1024)
     parser.add_argument("--temperature", type=float, default=1.0)
@@ -117,6 +123,14 @@ def parse_args():
     parser.add_argument("--use-vllm", action='store_true')
     parser.add_argument("--save-details", action='store_true')
     parser.add_argument("--merged-model-cache-dir", type=str, default=CACHE_ROOT, help="Directory to cache merged models.")
+    parser.add_argument(
+        "--geditv2-metadata-file",
+        "--openedit-metadata-file",
+        dest="geditv2_metadata_file",
+        type=str,
+        default=None,
+        help="Metadata JSONL file name under the benchmark path (used for GEditBench v2 evaluation).",
+    )
 
     return parser.parse_args()
 
@@ -159,16 +173,22 @@ if __name__ == "__main__":
         raise FileNotFoundError(f"Reward benchmark config not found: {args.bmk_config}")
     with open(args.bmk_config, "r", encoding="utf-8") as f:
         bmk_config = json.load(f)
-    bmk_info = dict(bmk_config[args.bmk])
-    dataset = load_dataset(bmk_name=args.bmk, **bmk_info)
-    output_file_dir = os.path.join(args.output_dir, pd.Timestamp.now().strftime('%m%d'), args.bmk)
+    normalized_bmk = normalize_benchmark_name(args.bmk)
+    if normalized_bmk not in bmk_config:
+        raise KeyError(f"Benchmark `{normalized_bmk}` not found. Available benchmarks: {list(bmk_config.keys())}")
+    bmk_info = dict(bmk_config[normalized_bmk])
+    if args.geditv2_metadata_file:
+        bmk_info["meta_file"] = args.geditv2_metadata_file
+    dataset = load_dataset(bmk_name=normalized_bmk, **bmk_info)
+    output_file_dir = os.path.join(args.output_dir, pd.Timestamp.now().strftime('%m%d'), normalized_bmk)
+    os.makedirs(output_file_dir, exist_ok=True)
     
-    if args.bmk == "openedit":
+    if normalized_bmk == DEFAULT_BENCHMARK_NAME:
         cache_dir = os.path.join(output_file_dir, ".cache")
         if not os.path.exists(cache_dir):
             os.makedirs(cache_dir, exist_ok=True)
-        cache_manager = CacheManager(cache_file=cache_dir + 'gen.jsonl')
-        infer_openedit_bench(
+        cache_manager = CacheManager(cache_file=os.path.join(cache_dir, "gen.jsonl"))
+        infer_geditv2_bench(
             judge=pvc_judge,
             dataset=dataset,
             generation_config=generation_config,
@@ -182,4 +202,4 @@ if __name__ == "__main__":
             generation_config=generation_config,
             output_file=os.path.join(output_file_dir, "results.jsonl"),
         )
-        report_board(static_dict, args.lora_model_path, args.bmk)
+        report_board(static_dict, args.lora_model_path, normalized_bmk)

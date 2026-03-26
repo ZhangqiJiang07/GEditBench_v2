@@ -1,6 +1,7 @@
 data/
 logs/
-openedit_bench/
+configs/lora_sft/history/
+geditv2_bench/
 vcreward_bench/
 lora_weights/
 output/

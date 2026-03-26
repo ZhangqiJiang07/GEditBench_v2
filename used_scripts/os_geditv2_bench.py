@@ -1,5 +1,5 @@
 '''
-开源Openedit-Bench的脚本
+开源 GEditBench v2 的脚本
 '''
 import os
 import json
@@ -10,8 +10,8 @@ import megfile
 from typing import Dict
 from megfile import SmartPath
 
-OPENEDIT_BENCH = "s3://jiangzhangqi/bench/OpenEdit"
-NEW_IMAGE_SAVE_DIR = "/data/open_edit/openedit_bench"
+GEDITV2_BENCH = "s3://jiangzhangqi/bench/geditv2"
+NEW_IMAGE_SAVE_DIR = "data/geditv2_bench"
 TASK_NAME_MAP = {
     "subject_add": "subject_addition",
     "subject_remove": "subject_removal",
@@ -70,7 +70,7 @@ def load_model_candidates(model_lists: dict):
 def get_image_ext(file_path):
     return Path(file_path).suffix.lower()[1:]
 
-def load_openedit_bench(path: str):
+def load_geditv2_bench(path: str):
     bench_path = SmartPath(path)
     subtask_folds = [child.name for child in bench_path.iterdir() if child.is_dir()]
     records = {}
@@ -91,7 +91,7 @@ def load_openedit_bench(path: str):
                 "task": new_task_name,
                 "image_ext": image_ext
             }
-    print(f"Loaded {len(records)} OpenEdit samples.")
+    print(f"Loaded {len(records)} GEditBench v2 samples.")
     return records
 
 def download_and_convert_image(image_path: str, save_path: str):
@@ -102,7 +102,7 @@ def download_and_convert_image(image_path: str, save_path: str):
         img = Image.open(image_path).convert("RGB")
     img.save(save_path, format="PNG")
 
-def prepare_openedit_bench_hf(
+def prepare_geditv2_bench_hf(
     meta_info: Dict,
     candidates_dicts: Dict,
 ) -> Dict[str, Dict]:
@@ -139,12 +139,12 @@ def prepare_openedit_bench_hf(
 
 
 if __name__ == "__main__":
-    with open("/data/open_edit/configs/datasets/openedit_candidates.json", 'r') as f:
+    with open("configs/datasets/geditv2_candidates.json", 'r') as f:
         candidate_models_config = json.load(f)
     
-    meta_info = load_openedit_bench(OPENEDIT_BENCH)
+    meta_info = load_geditv2_bench(GEDITV2_BENCH)
     candidates_dicts = load_model_candidates(candidate_models_config)
-    metadata = prepare_openedit_bench_hf(meta_info, candidates_dicts)
+    metadata = prepare_geditv2_bench_hf(meta_info, candidates_dicts)
 
     with open(os.path.join(NEW_IMAGE_SAVE_DIR, "metadata.jsonl"), 'w') as f:
         for jsonl_line in metadata:

@@ -8,6 +8,8 @@ import os
 import threading
 from collections import defaultdict
 
+from common_utils.project_paths import DATA_ROOT
+
 MAX_WORKERS = os.cpu_count()
 
 
@@ -21,7 +23,7 @@ def parse_args():
     )
     parser.add_argument(
         '--output-dir', type=str,
-        default="/data/open_edit/data/a_raw_img_prompt_pair_data/UnicEdit-10M",
+        default=str(DATA_ROOT / "a_raw_img_prompt_pair_data" / "UnicEdit-10M"),
         help='Path to save the raw data.'
     )
     parser.add_argument('--max-workers', type=int, default=MAX_WORKERS, help='Maximum number of worker threads for processing.')

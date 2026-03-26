@@ -23,6 +23,7 @@ def _bootstrap_import_path():
 _bootstrap_import_path()
 
 from core.cache_manager import CacheManager, generate_cache_key
+from common_utils.project_paths import DATA_ROOT
 
 TASK_EDIT_TYPE_MAP = {
     "season-transformation": "Apply seasonal transformation", # tone transfer
@@ -65,13 +66,13 @@ def parse_args():
     parser.add_argument('--task', type=str, default="subject-add", help='Task name for the image editing task.')
     parser.add_argument(
         '--output-dir', type=str,
-        default="/data/open_edit/data/a_raw_img_prompt_pair_data",
+        default=str(DATA_ROOT / "a_raw_img_prompt_pair_data"),
         help='Path to save the prepared pico data.'
     )
     parser.add_argument('--image-save-path', type=str, default=None, help='Path to save the prepared pico data.')
     parser.add_argument(
         '--path-to-pico-sft-jsonl', type=str,
-        default="/data/open_edit/data/a_raw_img_prompt_pair_data/pico_sft.jsonl",
+        default=str(DATA_ROOT / "a_raw_img_prompt_pair_data" / "pico_sft.jsonl"),
         help='Path to the original pico sft jsonl file.'
     )
     return parser.parse_args()

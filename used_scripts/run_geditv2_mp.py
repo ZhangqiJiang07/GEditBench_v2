@@ -323,7 +323,7 @@ def launch_workers(gpu_groups: List[str], model_name: str, save_root: str, job_q
     return workers
 
 
-def prepare_openedit_inputs(bench_path: str) -> list:
+def prepare_geditv2_inputs(bench_path: str) -> list:
     meta_info = [
         json.loads(line) for line in open(os.path.join(bench_path, 'metadata.jsonl'), 'r')
     ]
@@ -342,11 +342,11 @@ def prepare_openedit_inputs(bench_path: str) -> list:
 
 def parse_args():
     import argparse
-    parser = argparse.ArgumentParser(description="OpenEdit multi-GPU inference runner.")
+    parser = argparse.ArgumentParser(description="GEditBench v2 multi-GPU inference runner.")
     parser.add_argument('--model', type=str, default="qwen-image-edit")
     parser.add_argument('--gpus-per-worker', type=int, default=1)
-    parser.add_argument('--bench-path', type=str, default=None, help="Path to the OpenEdit benchmark directory containing metadata.jsonl and source images.")
-    parser.add_argument('--image-save-dir', type=str, default='/path/to/openedit/images/edited')
+    parser.add_argument('--bench-path', type=str, default=None, help="Path to the GEditBench v2 benchmark directory containing metadata.jsonl and source images.")
+    parser.add_argument('--image-save-dir', type=str, default='/path/to/geditv2/images/edited')
     parser.add_argument('--merge-to-metadata', action='store_true', help='Whether to merge generated image paths back to metadata.jsonl')
     return parser.parse_args()
 
@@ -369,11 +369,11 @@ def main():
     print(f"Detected GPUs: {gpu_count}. Launching workers: {gpu_groups}")
     bench_path = args.bench_path
     if bench_path is None:
-        with open("/data/open_edit/configs/datasets/bmk.json", 'r') as f:
+        with open("configs/datasets/bmk.json", 'r') as f:
             bmk_config = json.load(f)
-        bench_path = bmk_config["openedit"]["bench_path"]
+        bench_path = bmk_config["geditv2"]["bench_path"]
 
-    dataset = prepare_openedit_inputs(bench_path)
+    dataset = prepare_geditv2_inputs(bench_path)
     cache_dir = os.path.join(args.image_save_dir, ".cache")
     os.makedirs(cache_dir, exist_ok=True)
     cache_file = os.path.join(cache_dir, f"{args.model}.jsonl")

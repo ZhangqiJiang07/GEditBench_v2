@@ -22,13 +22,13 @@ def parse_args():
     parser.add_argument('--prompts-num', type=int, default=1700, help='Number of image-instruction pairs per training sample')
     parser.add_argument(
         '--input-dir', type=str,
-        default="/data/open_edit/data/c_annotated_group_data",
+        default="data/c_annotated_group_data",
         help='Directory containing the input JSONL files for each task.'
     )
     parser.add_argument(
         '--output-dir',
         type=str,
-        default="/data/open_edit/data/d_train_data",
+        default="data/d_train_data",
         help='Path to the output directory'
     )
     return parser.parse_args()

@@ -1,15 +1,15 @@
 {
-    "meta_info": "/data/editing_models/scale_up_pair_data/style_transfer/meta_info.jsonl",
+    "meta_info": "data/b_filtered_img_prompt_pair_data/style_transfer/meta_info.jsonl",
     "models": {
-        "Gemini2.5": "/data/editing_models/scale_up_pair_data/style_transfer/gemini_generation_results.jsonl",
-        "Qwen-Image-Edit-2511": "/data/editing_models/scale_up_pair_data/style_transfer/qwen-image-edit-2511_generation_results.jsonl",
-        "Qwen-Image-Edit-2509": "/data/editing_models/scale_up_pair_data/style_transfer/qwen-image-edit-2509_generation_results.jsonl",
-        "Qwen-Image-Edit": "/data/editing_models/scale_up_pair_data/style_transfer/qwen-image-edit_generation_results.jsonl",
-        "GPT-4o": "/data/editing_models/scale_up_pair_data/style_transfer/GPT-4o_generation_results.jsonl",
-        "Kontext": "/data/editing_models/scale_up_pair_data/style_transfer/kontext_generation_results.jsonl",
-        "Bagel": "/data/editing_models/scale_up_pair_data/style_transfer/bagel_generation_results.jsonl",
-        "Step1x-Edit-v1p2": "/data/editing_models/scale_up_pair_data/style_transfer/step1x_edit1.2_generation_results.jsonl",
-        "Step1x-Edit-v1p2-preview": "/data/editing_models/scale_up_pair_data/style_transfer/step1x_edit1.2-preview_generation_results.jsonl"
+        "Gemini2.5": "data/b_filtered_img_prompt_pair_data/style_transfer/gemini_generation_results.jsonl",
+        "Qwen-Image-Edit-2511": "data/b_filtered_img_prompt_pair_data/style_transfer/qwen-image-edit-2511_generation_results.jsonl",
+        "Qwen-Image-Edit-2509": "data/b_filtered_img_prompt_pair_data/style_transfer/qwen-image-edit-2509_generation_results.jsonl",
+        "Qwen-Image-Edit": "data/b_filtered_img_prompt_pair_data/style_transfer/qwen-image-edit_generation_results.jsonl",
+        "GPT-4o": "data/b_filtered_img_prompt_pair_data/style_transfer/GPT-4o_generation_results.jsonl",
+        "Kontext": "data/b_filtered_img_prompt_pair_data/style_transfer/kontext_generation_results.jsonl",
+        "Bagel": "data/b_filtered_img_prompt_pair_data/style_transfer/bagel_generation_results.jsonl",
+        "Step1x-Edit-v1p2": "data/b_filtered_img_prompt_pair_data/style_transfer/step1x_edit1.2_generation_results.jsonl",
+        "Step1x-Edit-v1p2-preview": "data/b_filtered_img_prompt_pair_data/style_transfer/step1x_edit1.2-preview_generation_results.jsonl"
     },
     "in_group_pairs": 6
 }

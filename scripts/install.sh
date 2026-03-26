@@ -31,7 +31,7 @@ CONDA_ROOT="${ENV_ROOT}/conda"
 
 MANAGER="auto"
 CONDA_MODE="history"
-CONDA_BIN="${CONDA_BIN:-/data/miniforge3/bin/conda}"
+CONDA_BIN="${CONDA_BIN:-}"
 PYTHON_BIN="${PYTHON_BIN:-python3}"
 ENV_NAME=""
 VENV_DIR=""
@@ -229,7 +229,7 @@ install_with_conda() {
     install_with_conda_explicit
   fi
   echo "[install] Completed with conda for profile: ${PROFILE}"
-  echo "[install] Activate with: source /data/miniforge3/etc/profile.d/conda.sh && conda activate ${ENV_NAME}"
+  echo "[install] Activate with: conda activate ${ENV_NAME}"
 }
 
 install_non_pypi_deps() {

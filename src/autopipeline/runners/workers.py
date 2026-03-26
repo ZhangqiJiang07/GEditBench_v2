@@ -1,6 +1,7 @@
 
 from ..pipelines import PIPELINE_REGISTRY
 from common_utils.logging_util import get_logger
+from common_utils.project_paths import normalize_benchmark_name
 logger = get_logger()
 
 class EvalWorker:
@@ -11,7 +12,7 @@ class EvalWorker:
     def __call__(self, item_key, input_dict, runtime, **kwargs):
         pipeline = runtime.get_pipeline()
         res_dict = {}
-        if kwargs.get("benchmark_name", '') == 'openedit':
+        if normalize_benchmark_name(kwargs.get("benchmark_name", "")) == "geditv2":
             res_dict["input_dict"] = input_dict
         if input_dict.get("winner", None):
             res_dict["gt_winner"] = input_dict["winner"]
@@ -56,6 +57,5 @@ class AnnotatorWorker:
             return item_key, res_dict
         else:
             raise NotImplementedError(f"Unsupported pipeline: {self.pipeline_name}")
-
 
 

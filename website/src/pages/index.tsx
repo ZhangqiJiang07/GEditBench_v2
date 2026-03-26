@@ -9,7 +9,7 @@ const benchmarkStats = [
   {
     value: '1,200',
     label: 'Benchmark prompts',
-    note: 'from the current `openedit_bench/metadata.jsonl` snapshot',
+    note: 'from the current `geditv2_bench/metadata.jsonl` snapshot',
   },
   {
     value: '23',

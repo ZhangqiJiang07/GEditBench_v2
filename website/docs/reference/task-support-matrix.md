@@ -38,7 +38,7 @@ This page is not an exhaustive metric catalog. Its purpose is to map tasks to st
 
 `eval` reads benchmark definitions from `configs/datasets/bmk.json`. Repository-visible keys include:
 
-- `openedit`
+- `geditv2`
 - `vc_reward`
 - `editscore_consistency`
 - `editscore_prompt_following`

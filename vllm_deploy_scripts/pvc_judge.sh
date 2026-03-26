@@ -1,6 +1,6 @@
 # Qwen3-VL-8B-Instruct with LoRA
 python -m vllm.entrypoints.openai.api_server \
-  --model /mnt/jfs/pvc_judge/ \
+  --model /path/to/pvc_judge/ \
   --served-model-name PVC-Judge \
   --tensor-parallel-size 1 \
   --mm-encoder-tp-mode data \

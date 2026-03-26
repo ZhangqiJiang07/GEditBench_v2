@@ -9,6 +9,7 @@ from PIL import Image
 
 from core.cache_manager import CacheManager, generate_cache_key
 from autogen.constants import MODEL_PATH_MAP
+from common_utils.project_paths import resolve_project_path
 
 def load_pipeline(model_name: str):
     if model_name in ["qwen-image-edit"]:
@@ -198,7 +199,7 @@ def parse_args():
     parser.add_argument('--model', type=str, default="qwen-image-edit", help='Model name to load the pipeline from.')
     parser.add_argument(
         '--dataset-path', type=str,
-        default="/data/open_edit/data/b_filtered_img_prompt_pair_data",
+        default="data/b_filtered_img_prompt_pair_data",
         help='Dataset path for the image editing task.'
     )
     parser.add_argument('--gpus-per-worker', type=int, default=1, help='Number of GPUs to allocate per worker process.')
@@ -220,12 +221,13 @@ def main():
         )
     print(f"Detected {gpu_count} GPUs, forming {len(gpu_groups)} GPU groups for workers: {gpu_groups}")
 
-    cache_path = os.path.join(f'/data/{args.dataset_path}', args.task, 'gen_cache')
+    dataset_root = str(resolve_project_path(args.dataset_path))
+    cache_path = os.path.join(dataset_root, args.task, 'gen_cache')
     if not os.path.exists(cache_path):
         os.makedirs(cache_path, exist_ok=True)
     cache_file = os.path.join(cache_path, f'{args.model}.jsonl')
     cache_manager = CacheManager(cache_file)
-    meta_info_path = os.path.join(f'/data/{args.dataset_path}', args.task, 'meta_info.jsonl')
+    meta_info_path = os.path.join(dataset_root, args.task, 'meta_info.jsonl')
     dataset = [
         json.loads(line) for line in open(meta_info_path, 'r')
     ]
@@ -248,8 +250,7 @@ def main():
     writer.start()
 
     output_image_save_path = os.path.join(
-        's3://jiangzhangqi',
-        '/'.join(args.dataset_path.split('/')[1:]),
+        str(resolve_project_path("data/generated_images")),
         args.task, args.model
     )
 
@@ -276,7 +277,7 @@ def main():
     
     cache_manager = CacheManager(cache_file)
     print("写入结果文件...")
-    gen_save_path = os.path.join(f"/data/{args.dataset_path}", args.task)
+    gen_save_path = os.path.join(dataset_root, args.task)
     os.makedirs(gen_save_path, exist_ok=True)
     with open(os.path.join(gen_save_path, f'{args.model}_generation_results.jsonl'), 'w') as json_f:
         for item in dataset:

@@ -13,8 +13,8 @@ Usage:
 
 Examples:
   prepare_raw_data.sh --dataset nano --task background_change --path-to-nano-data /path/to/Nano --output-dir /path/to/save/metadata_files --image-save-path /path/to/save/the/downloaded/data/
-  prepare_raw_data.sh pico --task subject-add --image-save-path /data/open_edit/data/images --output-dir /path/to/save/metadata_files --path-to-pico-sft-jsonl /path/to/pico/sft.jsonl
-  prepare_raw_data.sh unicedit --path-to-uniedit-data /path/to/UnicEdit-10M/data --output-dir /data/open_edit/data/a_raw_img_prompt_pair_data/UnicEdit-10M --max-workers 16
+  prepare_raw_data.sh pico --task subject-add --image-save-path ${REPO_ROOT}/data/images --output-dir /path/to/save/metadata_files --path-to-pico-sft-jsonl /path/to/pico/sft.jsonl
+  prepare_raw_data.sh unicedit --path-to-uniedit-data /path/to/UnicEdit-10M/data --output-dir ${REPO_ROOT}/data/a_raw_img_prompt_pair_data/UnicEdit-10M --max-workers 16
 
 Notes:
   - This script auto-sets PYTHONPATH to include repo root and src.

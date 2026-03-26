@@ -7,10 +7,10 @@ from pathlib import Path
 from PIL import Image
 import megfile
 
-NEW_IMAGE_SAVE_DIR = "/data/open_edit/vcreward_bench"
+NEW_IMAGE_SAVE_DIR = "data/vcreward_bench"
 VCREWARD_BENCH_CONFIG = {
     "image_data_path": "s3://sunzheng-public/gedit/geditv5/images",
-    "json_file_path": "/data/gedit-rm-benchmark/geditv5/data",
+    "json_file_path": "/path/to/geditv5/data",
     "tasks": [
         "background_change", "camera_motion", "color_alter", "cref", "enhancement", "extract_object",
         "material_alter", "motion_change", "ps_human", "relation_change", "size_change", "sketch2image",

@@ -1,2 +1,5 @@
-LOG_DIR = "/data/open_edit/logs/train_logs"
-JSON_CONFIG_SAVE_PATH = "/data/open_edit/configs/lora_sft/history"
+from common_utils.project_paths import CONFIGS_ROOT, LOGS_ROOT
+
+
+LOG_DIR = str(LOGS_ROOT / "train_logs")
+JSON_CONFIG_SAVE_PATH = str(CONFIGS_ROOT / "lora_sft" / "history")

@@ -103,6 +103,9 @@ class ConfigEngine:
         return value
 
     def _get_by_path(self, context, path: str):
+        if path.startswith("env:"):
+            return self._get_env_var(path[4:])
+
         keys = path.split(".")
         val = context
 
@@ -114,6 +117,21 @@ class ConfigEngine:
             val = val[k]
 
         return val
+
+    def _get_env_var(self, spec: str):
+        if ":" in spec:
+            env_name, default_value = spec.split(":", 1)
+        else:
+            env_name, default_value = spec, None
+
+        env_value = os.environ.get(env_name)
+        if env_value is not None and env_value != "":
+            return yaml.safe_load(env_value)
+        if default_value is not None:
+            return yaml.safe_load(default_value)
+        if self.strict:
+            raise KeyError(f"Environment variable '{env_name}' is not set")
+        return None
 
     def normalize_default_init_config(self, obj):
         if isinstance(obj, dict):
@@ -159,7 +177,7 @@ class ConfigEngine:
 if __name__ == "__main__":
     engine = ConfigEngine()
     config = engine.load(
-        pipeline_path="/data/open_edit/configs/pipelines/human_centric/motion_change.yaml",
-        user_path="/data/open_edit/configs/pipelines/user_config.yaml"
+        pipeline_path="configs/pipelines/human_centric/motion_change.yaml",
+        user_path="configs/pipelines/user_config.yaml"
     )
     print(config)

@@ -1,7 +1,7 @@
 # !/bin/bash
 # Qwen2.5-VL-72B-Instruct
 python -m vllm.entrypoints.openai.api_server \
-  --model /mnt/jfs/model-zoo/Qwen/Qwen2.5-VL-72B-Instruct \
+  --model /path/to/model-zoo/Qwen/Qwen2.5-VL-72B-Instruct \
   --served-model-name Qwen2.5-VL-72B-Instruct \
   --tensor-parallel-size 8 \
   --data-parallel-size 1 \
@@ -14,7 +14,7 @@ python -m vllm.entrypoints.openai.api_server \
 
 # Qwen2.5-VL-7B-Instruct
 python -m vllm.entrypoints.openai.api_server \
-  --model /mnt/jfs/model-zoo/Qwen/Qwen2.5-VL-7B-Instruct \
+  --model /path/to/model-zoo/Qwen/Qwen2.5-VL-7B-Instruct \
   --served-model-name Qwen2.5-VL-7B-Instruct \
   --tensor-parallel-size 1 \
   --data-parallel-size 1 \

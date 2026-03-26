@@ -1,7 +1,11 @@
 import os
 import sys
-sys.path.append('/data/open_edit/src')
-print(sys.path)
+from pathlib import Path
+
+SRC_ROOT = Path(__file__).resolve().parents[2]
+PROJECT_ROOT = SRC_ROOT.parent
+if str(SRC_ROOT) not in sys.path:
+    sys.path.insert(0, str(SRC_ROOT))
 import json
 import random
 import torch
@@ -173,7 +177,6 @@ class PairWiseDataset(Dataset):
             add_generation_prompt=True,
             add_vision_id=False
         )
-        print(text + "abc")
         images, _ = process_vision_info(messages, image_patch_size=self.image_patch_size)
         # image_inputs = [np.array(x) / 255.0 for x in image_inputs]
 
@@ -332,7 +335,7 @@ if __name__ == "__main__":
 
     data_config = DataConfig()
     data_config.train_json_list = [
-        "/data/assess_model/data/consistency/EditReward_Data/overall_pair_data_00_of_08.json"
+        "data/d_train_data/example_pairwise_train.json"
     ]
     data_config.image_min_pixels = 256 * 28 * 28
     data_config.image_max_pixels = 256 * 28 * 28
@@ -345,7 +348,7 @@ if __name__ == "__main__":
     }
     # data_config.with_reason = False
 
-    model_name_or_path = '/mnt/jfs/model-zoo/Qwen/Qwen2.5-VL-7B-Instruct'
+    model_name_or_path = os.environ.get("GEDITV2_DATASET_DEBUG_MODEL", "Qwen/Qwen2.5-VL-7B-Instruct")
     processor = AutoProcessor.from_pretrained(model_name_or_path)
 
     dataset = PairWiseDataset(

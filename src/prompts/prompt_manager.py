@@ -1,6 +1,6 @@
 import os
 # import sys
-# sys.path.append('/data/open_edit/src')
+# sys.path.append('data/src')
 import yaml
 from pathlib import Path
 from typing import Dict

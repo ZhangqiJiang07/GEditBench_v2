@@ -3,12 +3,13 @@ import datetime as dt
 import os
 import shlex
 import subprocess
-import sys
 
-PROJECT_ROOT = "/data/open_edit"
-DEFAULT_CONFIG_PATH = f"{PROJECT_ROOT}/configs/lora_sft"
-DEFAULT_OUTPUT_BASE = "/mnt/jfs/sft_qwen_lora"
-DEFAULT_TRAIN_SCRIPT = f"{PROJECT_ROOT}/src/autotrain/train/train_sft_lora.py"
+from common_utils.project_paths import CONFIGS_ROOT, OUTPUT_ROOT, PROJECT_ROOT
+
+
+DEFAULT_CONFIG_PATH = str(CONFIGS_ROOT / "lora_sft")
+DEFAULT_OUTPUT_BASE = str(OUTPUT_ROOT / "sft_runs")
+DEFAULT_TRAIN_SCRIPT = str(PROJECT_ROOT / "src" / "autotrain" / "train" / "train_sft_lora.py")
 
 
 def _build_parser() -> argparse.ArgumentParser:
@@ -30,7 +31,7 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--project-root",
-        default=PROJECT_ROOT,
+        default=str(PROJECT_ROOT),
         help="Project root used as subprocess working directory.",
     )
     parser.add_argument(

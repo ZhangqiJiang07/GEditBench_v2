@@ -12,6 +12,7 @@ from concurrent.futures import ProcessPoolExecutor
 from core.cache_manager import generate_cache_key
 from common_utils.pairwise import generate_canonical_pairs
 from common_utils.logging_util import get_logger
+from common_utils.project_paths import DEFAULT_BENCHMARK_NAME, normalize_benchmark_name, resolve_project_path
 logger = get_logger()
 
 
@@ -39,9 +40,9 @@ class BaseDataset(ABC):
 
 class EditScoreRewardBenchmark(BaseDataset):
     def __init__(self, data_path, eval_dim, shuffled_res_path, max_workers: int = None):
-        self.data_path = data_path
+        self.data_path = str(resolve_project_path(data_path))
         self.eval_dim = eval_dim
-        self.shuffled_res_path = shuffled_res_path
+        self.shuffled_res_path = str(resolve_project_path(shuffled_res_path))
 
         start_time = time.time()
         self.dataset = self.prepare_dataset(max_workers)
@@ -84,8 +85,8 @@ class EditScoreRewardBenchmark(BaseDataset):
 
 class EditRewardRewardBenchmark(BaseDataset):
     def __init__(self, image_data_path, json_file_path):
-        self.image_data_path = image_data_path
-        self.json_file_path = json_file_path
+        self.image_data_path = image_data_path if image_data_path.startswith("s3://") else str(resolve_project_path(image_data_path))
+        self.json_file_path = str(resolve_project_path(json_file_path))
 
         start_time = time.time()
         self.dataset = self.prepare_dataset()
@@ -126,7 +127,7 @@ class EditRewardRewardBenchmark(BaseDataset):
 
 class VCRewardBenchmark(BaseDataset):
     def __init__(self, bench_path):
-        self.bench_path = bench_path
+        self.bench_path = str(resolve_project_path(bench_path))
 
         start_time = time.time()
         self.dataset = self.prepare_dataset()
@@ -154,38 +155,44 @@ def _load_model_candidates(model_lists: dict):
     candidates_dict = {}
     for model_name, model_results_jsonl_path in model_lists.items():
         candidates = {}
-        for _line in open(model_results_jsonl_path, 'r'):
+        resolved_path = str(resolve_project_path(model_results_jsonl_path))
+        for _line in open(resolved_path, 'r'):
             line = json.loads(_line.strip())
             candidates[line['key']] = line['image_path']
         candidates_dict[model_name] = candidates
     return candidates_dict
 
-class OpenEditBenchmarkEval(BaseDataset):
+class GEditBenchV2Eval(BaseDataset):
     def __init__(self, bench_path, meta_file, selected_compare_model_list):
-        self.benchmark_name = "openedit"
-        self.bench_path = bench_path
+        self.benchmark_name = DEFAULT_BENCHMARK_NAME
+        self.bench_path = str(resolve_project_path(bench_path))
         self.meta_file = meta_file
         self.valid_compare_model_list = self._check_candidate_models(selected_compare_model_list)
 
         start_time = time.time()
         self.dataset = self.prepare_dataset()
-        print(f"OpenEdit dataset loaded in {time.time() - start_time} seconds")
+        print(f"GEditBench v2 dataset loaded in {time.time() - start_time} seconds")
 
     def _check_candidate_models(self, selected_compare_model_list):
         print("| Model Name           | Number of Samples |")
         print("|----------------------|-------------------|")
         valid_models = []
+        model_sample_counts = {}
         for model_name in selected_compare_model_list:
-            # print model name and number of samples for debugging
             if not os.path.exists(os.path.join(self.bench_path, 'images', 'edited', model_name)):
                 raise ValueError(f"Model {model_name} does not exist in the benchmark edited images directory.")
             num_samples = len(os.listdir(os.path.join(self.bench_path, 'images', 'edited', model_name)))
+            model_sample_counts[model_name] = num_samples
             print(f"{model_name:<20} | {num_samples}")
             if num_samples > 200:
                 valid_models.append(model_name)
         for model_name in selected_compare_model_list:
             if model_name not in valid_models:
-                print(f"Warning: Model {model_name} has only {num_samples} samples, which may lead to unreliable evaluation results. Consider removing it from the selected_compare_model_list.")
+                print(
+                    f"Warning: Model {model_name} has only {model_sample_counts[model_name]} samples, "
+                    "which may lead to unreliable evaluation results. "
+                    "Consider removing it from the selected_compare_model_list."
+                )
         return valid_models        
 
     def prepare_dataset(self) -> Dict[str, Dict]:
@@ -259,7 +266,8 @@ class CandidatesDataset(BaseDataset):
     
     def prepare_dataset(self) -> Dict[str, Dict]:
         meta_info = {}
-        with open(self.data_config['meta_info'], 'r') as f:
+        meta_info_path = str(resolve_project_path(self.data_config['meta_info']))
+        with open(meta_info_path, 'r') as f:
             for line in f:
                 obj = json.loads(line.strip())
                 meta_info[obj['key']] = {
@@ -272,6 +280,7 @@ class CandidatesDataset(BaseDataset):
 
 
 def load_dataset(bmk_name: str, **kwargs):
+    bmk_name = normalize_benchmark_name(bmk_name)
     if bmk_name in ["editscore_consistency", "editscore_prompt_following"]:
         assert kwargs['eval_dim'] in ['overall', 'consistency', 'prompt_following'], (
             "EditScore benchmark only supports 'overall', 'consistency', and 'prompt_following' evaluation dimensions."
@@ -297,8 +306,8 @@ def load_dataset(bmk_name: str, **kwargs):
             data_config=kwargs['data_config'],
             pipeline_name=kwargs['pipeline_name']
         )
-    elif bmk_name == 'openedit':
-        return OpenEditBenchmarkEval(
+    elif bmk_name == DEFAULT_BENCHMARK_NAME:
+        return GEditBenchV2Eval(
             bench_path=kwargs['bench_path'],
             meta_file=kwargs.get('meta_file', 'metadata.jsonl'),
             selected_compare_model_list=kwargs['selected_compare_model_list']

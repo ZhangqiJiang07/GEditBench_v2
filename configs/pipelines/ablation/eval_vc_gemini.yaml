@@ -12,8 +12,8 @@ metric_configs:
       backend: google
       model_name: gemini-3-pro-native
       api_version: v1alpha
-      api_key: "ak-92d6efba47h3ijk05l8mno61pqrs29tuv4c7w3z"
-      base_url: "https://models-proxy.stepfun-inc.com/gemini"
+      api_key: "${env:GEMINI_API_KEY:YOUR_GEMINI_API_KEY}"
+      base_url: "${env:GEMINI_BASE_URL:https://generativelanguage.googleapis.com}"
       prompt_info:
         prompt_id: vlm/assessment/visual_consistency/pairwise
         version: v1

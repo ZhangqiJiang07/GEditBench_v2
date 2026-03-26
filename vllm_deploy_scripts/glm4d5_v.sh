@@ -1,7 +1,7 @@
 # !/bin/bash
 # H100 * 4
 python -m vllm.entrypoints.openai.api_server \
-  --model /mnt/jfs/model-zoo/zai-org/GLM-4.5V \
+  --model /path/to/model-zoo/zai-org/GLM-4.5V \
   --served-model-name GLM4.5-V \
   --tensor-parallel-size 4 \
   --data-parallel-size 1 \

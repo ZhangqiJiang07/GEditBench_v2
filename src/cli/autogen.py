@@ -1,17 +1,22 @@
 import argparse
 import os
 import sys
+from pathlib import Path
 
+SRC_ROOT = Path(__file__).resolve().parents[1]
+PROJECT_ROOT = SRC_ROOT.parent
+if str(SRC_ROOT) not in sys.path:
+    sys.path.insert(0, str(SRC_ROOT))
 
-PROJECT_ROOT = "/data/open_edit"
-SRC_ROOT = f"{PROJECT_ROOT}/src"
+from autogen.constants import QWEN3_VL_EMBEDDING_MODEL_PATH
+from common_utils.project_paths import CONFIGS_ROOT, DATA_ROOT, PROJECT_ROOT, normalize_benchmark_name
 
-DEFAULT_FILTER_INPUT_FILE = "/data/open_edit/data/a_raw_img_prompt_pair_data/subject_add.jsonl"
-DEFAULT_FILTER_OUTPUT_DIR = "/data/open_edit/data/b_filtered_img_prompt_pair_data"
-DEFAULT_QWEN_EMBEDDING_MODEL_PATH = "/mnt/jfs/model-zoo/Qwen/Qwen3-VL-Embedding-8B"
-DEFAULT_DATASET_PATH = "/data/open_edit/data/b_filtered_img_prompt_pair_data"
-DEFAULT_OPENEDIT_IMAGE_SAVE_DIR = "/path/to/openedit/images/edited"
-DEFAULT_BMK_CONFIG_PATH = "/data/open_edit/configs/datasets/bmk.json"
+DEFAULT_FILTER_INPUT_FILE = str(DATA_ROOT / "a_raw_img_prompt_pair_data" / "subject_add.jsonl")
+DEFAULT_FILTER_OUTPUT_DIR = str(DATA_ROOT / "b_filtered_img_prompt_pair_data")
+DEFAULT_QWEN_EMBEDDING_MODEL_PATH = QWEN3_VL_EMBEDDING_MODEL_PATH
+DEFAULT_DATASET_PATH = str(DATA_ROOT / "b_filtered_img_prompt_pair_data")
+DEFAULT_GEDITV2_IMAGE_SAVE_DIR = str(PROJECT_ROOT / "geditv2_bench" / "images" / "edited")
+DEFAULT_BMK_CONFIG_PATH = str(CONFIGS_ROOT / "datasets" / "bmk.json")
 
 
 def _append_pythonpath_env(src_path: str) -> None:
@@ -22,9 +27,10 @@ def _append_pythonpath_env(src_path: str) -> None:
 
 
 def _bootstrap_import_paths() -> None:
-    if SRC_ROOT not in sys.path:
-        sys.path.insert(0, SRC_ROOT)
-    _append_pythonpath_env(SRC_ROOT)
+    src_root = str(SRC_ROOT)
+    if src_root not in sys.path:
+        sys.path.insert(0, src_root)
+    _append_pythonpath_env(src_root)
 
 
 def _configure_mp_runtime() -> None:
@@ -65,11 +71,11 @@ def _cmd_run_candidates(args: argparse.Namespace) -> int:
     return 0
 
 
-def _cmd_run_openedit(args: argparse.Namespace) -> int:
-    from autogen.workflows.generation import run_openedit_generation
+def _cmd_run_geditv2(args: argparse.Namespace) -> int:
+    from autogen.workflows.generation import run_geditv2_generation
 
     _configure_mp_runtime()
-    output_file, merged_output = run_openedit_generation(
+    output_file, merged_output = run_geditv2_generation(
         model=args.model,
         gpus_per_worker=args.gpus_per_worker,
         bench_path=args.bench_path,
@@ -108,17 +114,21 @@ def _build_parser() -> argparse.ArgumentParser:
     run_candidates_parser.add_argument("--model", type=str, default="qwen-image-edit")
     run_candidates_parser.add_argument("--dataset-path", type=str, default=DEFAULT_DATASET_PATH)
     run_candidates_parser.add_argument("--gpus-per-worker", type=int, default=1)
-    run_candidates_parser.add_argument("--output-bucket-prefix", type=str, default="s3://jiangzhangqi")
+    run_candidates_parser.add_argument("--output-bucket-prefix", type=str, default="data/generated_images")
     run_candidates_parser.set_defaults(func=_cmd_run_candidates)
 
-    run_openedit_parser = run_subparsers.add_parser("openedit", help="Run OpenEdit benchmark generation.")
-    run_openedit_parser.add_argument("--model", type=str, default="qwen-image-edit")
-    run_openedit_parser.add_argument("--gpus-per-worker", type=int, default=1)
-    run_openedit_parser.add_argument("--bench-path", type=str, default=None)
-    run_openedit_parser.add_argument("--image-save-dir", type=str, default=DEFAULT_OPENEDIT_IMAGE_SAVE_DIR)
-    run_openedit_parser.add_argument("--merge-to-metadata", action="store_true")
-    run_openedit_parser.add_argument("--bmk-config-path", type=str, default=DEFAULT_BMK_CONFIG_PATH)
-    run_openedit_parser.set_defaults(func=_cmd_run_openedit)
+    for command_name, help_text in (
+        ("geditv2", "Run GEditBench v2 benchmark generation."),
+        ("openedit", argparse.SUPPRESS),
+    ):
+        run_geditv2_parser = run_subparsers.add_parser(command_name, help=help_text)
+        run_geditv2_parser.add_argument("--model", type=str, default="qwen-image-edit")
+        run_geditv2_parser.add_argument("--gpus-per-worker", type=int, default=1)
+        run_geditv2_parser.add_argument("--bench-path", type=str, default=None)
+        run_geditv2_parser.add_argument("--image-save-dir", type=str, default=DEFAULT_GEDITV2_IMAGE_SAVE_DIR)
+        run_geditv2_parser.add_argument("--merge-to-metadata", action="store_true")
+        run_geditv2_parser.add_argument("--bmk-config-path", type=str, default=DEFAULT_BMK_CONFIG_PATH)
+        run_geditv2_parser.set_defaults(func=_cmd_run_geditv2, benchmark_name=normalize_benchmark_name(command_name))
 
     return parser
 

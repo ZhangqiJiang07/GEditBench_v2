@@ -97,11 +97,11 @@ def parse_args():
     parser.add_argument('--task', type=str, default="background_change", help='Task name for the image editing task.')
     parser.add_argument(
         '--input-file', type=str,
-        default="/data/open_edit/data/a_raw_img_prompt_pair_data/subject_add.jsonl"
+        default="data/a_raw_img_prompt_pair_data/subject_add.jsonl"
     )
     parser.add_argument(
         '--output-dir', type=str,
-        default="/data/open_edit/data/b_filtered_img_prompt_pair_data",
+        default="data/b_filtered_img_prompt_pair_data",
         help='Path to save the filtered data.'
     )
     parser.add_argument('--qwen-embedding-model-path', type=str, default=QWEN3_VL_EMBEDDING_MODEL_PATH)

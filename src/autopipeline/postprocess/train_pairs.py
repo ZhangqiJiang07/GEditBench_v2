@@ -7,8 +7,9 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
+from common_utils.project_paths import CONFIGS_ROOT
 
-DEFAULT_THRESHOLDS_CONFIG_FILE = "/data/open_edit/configs/pipelines/data_construction_configs.json"
+DEFAULT_THRESHOLDS_CONFIG_FILE = str(CONFIGS_ROOT / "pipelines" / "data_construction_configs.json")
 GPT_RESPONSE = '''```json
 {{
     "winner": {winner_value}
@@ -361,4 +362,3 @@ def convert_grouped_results_to_train_pairs(
         output_paths[task] = output_task_json
 
     return output_paths
-

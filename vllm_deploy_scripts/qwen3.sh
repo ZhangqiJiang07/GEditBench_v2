@@ -2,7 +2,7 @@
 
 # Qwen3-4B-Instruct
 python -m vllm.entrypoints.openai.api_server \
-  --model /mnt/jfs/model-zoo/Qwen/Qwen3-4B-Instruct-2507 \
+  --model /path/to/model-zoo/Qwen/Qwen3-4B-Instruct-2507 \
   --served-model-name Qwen3-4B-Instruct-2507 \
   --tensor-parallel-size 1 \
   --mm-encoder-tp-mode data \
@@ -16,7 +16,7 @@ python -m vllm.entrypoints.openai.api_server \
 
 # Qwen3-8B
 python -m vllm.entrypoints.openai.api_server \
-  --model /mnt/jfs/model-zoo/Qwen/Qwen3-8B \
+  --model /path/to/model-zoo/Qwen/Qwen3-8B \
   --served-model-name Qwen3-8B \
   --tensor-parallel-size 1 \
   --mm-encoder-tp-mode data \

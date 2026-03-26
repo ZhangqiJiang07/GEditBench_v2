@@ -105,7 +105,7 @@ def save_configs_to_json(data_config, training_args, model_config):
         JSON_CONFIG_SAVE_PATH,
         pd.Timestamp.now().strftime("%m%d"),
     )
-    save_file = f"sft_config_{pd.Timestamp.now().strftime("%H%M%S")}.json"
+    save_file = f"sft_config_{pd.Timestamp.now().strftime('%H%M%S')}.json"
 
     os.makedirs(save_path, exist_ok=True)
     print(f"⭐ Config file will be stored to: {save_path} as {save_file} for checking.")

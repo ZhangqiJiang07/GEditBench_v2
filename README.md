@@ -1,6 +1,6 @@
-# OpenEdit
+# GEditBench v2
 
-OpenEdit is an end-to-end framework for building, evaluating, and training visual consistency judges for image editing.
+GEditBench v2 is an end-to-end framework for building, evaluating, and training visual consistency judges for image editing.
 
 It connects three stages that are usually scattered across separate research codebases: automatic edited-candidate generation (`autogen`), automatic visual-consistency preference construction (`autopipeline`), and LoRA-based VLM training (`autotrain`). The repository also includes reusable benchmark/evaluation utilities, prompt assets, and lightweight CLIs for running the full workflow from data construction to judge inference.
 
@@ -13,7 +13,7 @@ This repository accompanies an upcoming paper. Citation details will be added on
 ## Highlights
 
 - End-to-end workflow from raw image-instruction pairs to a trained pairwise VLM judge.
-- Automatic candidate generation for edited images and benchmark generation for OpenEdit-style evaluation.
+- Automatic candidate generation for edited images and benchmark generation for GEditBench v2-style evaluation.
 - Automatic visual-consistency annotation with object-centric, human-centric, and VLM-as-a-judge pipelines.
 - Preference-pair construction utilities for turning grouped annotations into training data.
 - LoRA-based training scripts for Qwen-family VLM judges, with DeepSpeed support.
@@ -23,7 +23,7 @@ This repository accompanies an upcoming paper. Citation details will be added on
 ## What This Repo Includes
 
 - `autogen`
-  Generates edited candidates from image-editing models, filters raw image-prompt pairs with Qwen3-VL embeddings, and prepares OpenEdit benchmark outputs.
+  Generates edited candidates from image-editing models, filters raw image-prompt pairs with Qwen3-VL embeddings, and prepares GEditBench v2 benchmark outputs.
 
 - `autopipeline`
   Builds visual-consistency annotations and preference pairs with modular pipelines. It supports object-centric checks, human-centric checks, and VLM-as-a-judge evaluation.
@@ -68,7 +68,7 @@ In practical terms, the repository supports the following loop:
 3. Annotate visual consistency automatically with task-specific pipelines.
 4. Convert grouped results into pairwise preference data.
 5. Train a VLM judge on those pairs.
-6. Evaluate the resulting judge on OpenEdit or reward benchmarks.
+6. Evaluate the resulting judge on GEditBench v2 or reward benchmarks.
 
 ## Installation
 
@@ -160,7 +160,7 @@ python -m src.cli.autogen run candidates \
   --gpus-per-worker 1
 ```
 
-Supported generation backends in the current codebase include `qwen-image-edit`, `qwen-image-edit-2509`, `qwen-image-edit-2511`, `step1x_edit1.2`, `step1x_edit1.2-preview`, `kontext`, and several OpenEdit benchmark generation models such as `flux.2_dev`, `glm_image`, `longcat_image_edit`, and `FireRed-Image-Edit-1.1`.
+Supported generation backends in the current codebase include `qwen-image-edit`, `qwen-image-edit-2509`, `qwen-image-edit-2511`, `step1x_edit1.2`, `step1x_edit1.2-preview`, `kontext`, and several GEditBench v2 benchmark generation models such as `flux.2_dev`, `glm_image`, `longcat_image_edit`, and `FireRed-Image-Edit-1.1`.
 
 ### 3. Run automatic annotation
 
@@ -200,11 +200,11 @@ The training launcher resolves the YAML config, creates an output directory, and
 
 ## CLI Overview
 
-OpenEdit exposes three primary CLIs:
+GEditBench v2 exposes three primary CLIs:
 
 | CLI | Scope | Representative Commands |
 | --- | --- | --- |
-| `autogen` | data filtering and candidate generation | `filter`, `run candidates`, `run openedit` |
+| `autogen` | data filtering and candidate generation | `filter`, `run candidates`, `run geditv2` |
 | `autopipeline` | annotation, evaluation, and pair construction | `annotation`, `eval`, `train-pairs` |
 | `autotrain` | LoRA VLM training launcher | top-level training entry |
 
@@ -268,7 +268,7 @@ Available pipeline recipes are organized under `configs/pipelines/`:
 ## Repository Structure
 
 ```text
-open_edit/
+GEditBench_v2/
 ├── configs/
 │   ├── datasets/              # candidate pools, benchmark definitions
 │   ├── lora_sft/              # LoRA/VLM training configs
@@ -278,7 +278,7 @@ open_edit/
 │   ├── b_filtered_img_prompt_pair_data/
 │   ├── c_annotated_group_data/
 │   ├── d_train_data/
-│   ├── e_openedit_pair_res/
+│   ├── e_geditv2_pair_res/
 │   ├── f_reward_results/
 │   └── z_reward_bench/
 ├── environments/              # publishable env profiles and lock files
@@ -321,7 +321,7 @@ The `data/` directory is organized as a staged workflow:
 | `b_filtered_img_prompt_pair_data` | filtered subsets and generated candidate metadata |
 | `c_annotated_group_data` | grouped annotation outputs |
 | `d_train_data` | pairwise training data for judge learning |
-| `e_openedit_pair_res` | OpenEdit evaluation metadata/results |
+| `e_geditv2_pair_res` | GEditBench v2 evaluation metadata/results |
 | `f_reward_results` | reward/judge evaluation outputs |
 | `z_reward_bench` | benchmark assets and shuffled benchmark annotations |
 
@@ -350,7 +350,7 @@ Current benchmark keys defined in `configs/datasets/bmk.json` include:
 - `editscore_prompt_following`
 - `editreward_visual_quality`
 - `vc_reward`
-- `openedit`
+- `geditv2`
 
 ### Local LoRA Judge Inference
 
@@ -371,7 +371,7 @@ The repository also includes helper scripts such as `scripts/local_eval.sh` and 
 
 ## Reproducibility
 
-OpenEdit is structured to make experiment reruns and environment export manageable:
+GEditBench v2 is structured to make experiment reruns and environment export manageable:
 
 - environment profiles and lock files live under `environments/`
 - pipeline and training behavior are configuration-driven
@@ -401,7 +401,7 @@ This repository is already usable as a research framework, but several public-re
 
 ## Citation
 
-If you use OpenEdit in your research, please cite the accompanying paper once it is public. A BibTeX entry will be added here when the preprint is released.
+If you use GEditBench v2 in your research, please cite the accompanying paper once it is public. A BibTeX entry will be added here when the preprint is released.
 
 ## License
 

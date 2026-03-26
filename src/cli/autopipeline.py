@@ -1,30 +1,36 @@
 import os
 import json
 import argparse
+import sys
+from pathlib import Path
 from typing import Any, Dict
 
-from src.common_utils.logging_util import logger_init
+SRC_ROOT = Path(__file__).resolve().parents[1]
+PROJECT_ROOT = SRC_ROOT.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
+from src.common_utils.logging_util import logger_init
+from src.common_utils.project_paths import CONFIGS_ROOT, DATA_ROOT, LOGS_ROOT, normalize_benchmark_name
 
 _LOGGER = None
 
-PROJECT_ROOT = "/data/open_edit"
-DEFAULT_CONFIG_BASE_DIR = "/data/open_edit/configs/pipelines"
-DEFAULT_USER_CONFIG = "/data/open_edit/configs/pipelines/user_config.yaml"
-DEFAULT_CANDIDATE_POOL_DIR = "/data/open_edit/configs/datasets/candidate_pools"
-DEFAULT_BMK_CONFIG = "/data/open_edit/configs/datasets/bmk.json"
-DEFAULT_ANNOTATION_SAVE_PATH = "/data/open_edit/data/c_annotated_group_data"
-DEFAULT_EVAL_SAVE_PATH = "/data/open_edit/data/reward_eval_results"
-DEFAULT_TRAIN_PAIRS_INPUT_DIR = "/data/open_edit/data/c_annotated_group_data"
-DEFAULT_TRAIN_PAIRS_OUTPUT_DIR = "/data/open_edit/data/d_train_data"
-DEFAULT_TRAIN_PAIRS_THRESHOLDS_CONFIG = "/data/open_edit/configs/pipelines/data_construction_configs.json"
+DEFAULT_CONFIG_BASE_DIR = str(CONFIGS_ROOT / "pipelines")
+DEFAULT_USER_CONFIG = str(CONFIGS_ROOT / "pipelines" / "user_config.yaml")
+DEFAULT_CANDIDATE_POOL_DIR = str(CONFIGS_ROOT / "datasets" / "candidate_pools")
+DEFAULT_BMK_CONFIG = str(CONFIGS_ROOT / "datasets" / "bmk.json")
+DEFAULT_ANNOTATION_SAVE_PATH = str(DATA_ROOT / "c_annotated_group_data")
+DEFAULT_EVAL_SAVE_PATH = str(DATA_ROOT / "reward_eval_results")
+DEFAULT_TRAIN_PAIRS_INPUT_DIR = str(DATA_ROOT / "c_annotated_group_data")
+DEFAULT_TRAIN_PAIRS_OUTPUT_DIR = str(DATA_ROOT / "d_train_data")
+DEFAULT_TRAIN_PAIRS_THRESHOLDS_CONFIG = str(CONFIGS_ROOT / "pipelines" / "data_construction_configs.json")
 
 
 def _get_logger():
     global _LOGGER
     if _LOGGER is None:
         _LOGGER = logger_init(
-            log_dir="/data/open_edit/logs/pipeline_runs",
+            log_dir=str(LOGS_ROOT / "pipeline_runs"),
             level="info",
             # main_process_only=True,
         )
@@ -152,7 +158,7 @@ def run_eval(
     save_path: str = DEFAULT_EVAL_SAVE_PATH,
     user_config: str = DEFAULT_USER_CONFIG,
     bmk_config: str = DEFAULT_BMK_CONFIG,
-    openedit_metadata_file: str = None,
+    geditv2_metadata_file: str = None,
 ):
     import pandas as pd
     from common_utils.dataset_loader import load_dataset
@@ -160,22 +166,30 @@ def run_eval(
     from src.autopipeline.runners import EvalWorker, Runner
     from src.core.cache_manager import CacheManager
     from src.core.config_engine import ConfigEngine
-    if bmk == "openedit" and openedit_metadata_file is None:
-        print("openedit_metadata_file is not specified. Defaulting to 'metadata.jsonl'.")
-        openedit_metadata_file = "metadata.jsonl"
+    normalized_bmk = normalize_benchmark_name(bmk)
+    if normalized_bmk == "geditv2" and geditv2_metadata_file is None:
+        print("geditv2_metadata_file is not specified. Defaulting to 'metadata.jsonl'.")
+        geditv2_metadata_file = "metadata.jsonl"
 
-    _get_logger().info(f"Starting evaluation for benchmark `{bmk}` with pipeline config `{pipeline_config_path}`")
+    _get_logger().info(
+        "Starting evaluation for benchmark `%s` (resolved as `%s`) with pipeline config `%s`",
+        bmk,
+        normalized_bmk,
+        pipeline_config_path,
+    )
     if not os.path.exists(bmk_config):
         raise FileNotFoundError(f"Reward benchmark config not found: {bmk_config}")
 
     with open(bmk_config, "r", encoding="utf-8") as f:
         bmk_config = json.load(f)
 
-    if bmk not in bmk_config:
-        raise KeyError(f"Benchmark `{bmk}` not found in {bmk_config}. Available benchmarks: {list(bmk_config.keys())}")
-    bmk_info = dict(bmk_config[bmk])
+    if normalized_bmk not in bmk_config:
+        raise KeyError(
+            f"Benchmark `{normalized_bmk}` not found in {bmk_config}. Available benchmarks: {list(bmk_config.keys())}"
+        )
+    bmk_info = dict(bmk_config[normalized_bmk])
     bmk_info.setdefault("max_workers", max_workers)
-    bmk_info.setdefault("openedit_metadata_file", openedit_metadata_file)
+    bmk_info.setdefault("meta_file", geditv2_metadata_file)
 
     engine = ConfigEngine()
     pipeline_config = engine.load(
@@ -187,7 +201,7 @@ def run_eval(
     cache_path = os.path.join(
         save_path,
         ".cache",
-        f"{bmk}_{_pipeline_tag(pipeline_config_path)}_results_cache.jsonl",
+        f"{normalized_bmk}_{_pipeline_tag(pipeline_config_path)}_results_cache.jsonl",
     )
     os.makedirs(os.path.dirname(cache_path), exist_ok=True)
 
@@ -196,15 +210,15 @@ def run_eval(
         worker=EvalWorker(pipeline_name),
         executor=_build_executor(pipeline_name, max_workers=max_workers),
         cache_manager=CacheManager(cache_path),
-        dataset=load_dataset(bmk_name=bmk, **bmk_info),
+        dataset=load_dataset(bmk_name=normalized_bmk, **bmk_info),
     )
 
     all_results = runner.run()
     eval_res_name = os.path.splitext(os.path.basename(pipeline_config_path))[0]
-    if bmk == "openedit":
-        eval_res_name += f"_{os.path.splitext(os.path.basename(openedit_metadata_file))[0]}"
+    if normalized_bmk == "geditv2":
+        eval_res_name += f"_{os.path.splitext(os.path.basename(geditv2_metadata_file))[0]}"
     timestamp = pd.Timestamp.now().strftime("%Y%m%d_%H%M%S")
-    results_save_path = os.path.join(save_path, bmk, eval_res_name)
+    results_save_path = os.path.join(save_path, normalized_bmk, eval_res_name)
     os.makedirs(results_save_path, exist_ok=True)
     results_file = os.path.join(results_save_path, f"{timestamp}.jsonl")
     _get_logger().info("Saving final grouped results to %s...", results_file)
@@ -308,10 +322,12 @@ def build_parser() -> argparse.ArgumentParser:
         help="Benchmark configuration JSON path.",
     )
     eval_parser.add_argument(
+        "--geditv2-metadata-file",
         "--openedit-metadata-file",
+        dest="geditv2_metadata_file",
         type=str,
         default=None,
-        help="Metadata JSONL file name under the benchmark path (used for OpenEdit benchmark evaluation).",
+        help="Metadata JSONL file name under the benchmark path (used for GEditBench v2 evaluation).",
     )
 
     train_pairs_parser = subparsers.add_parser("train-pairs", help="Convert grouped annotation results to train pairs.")
@@ -390,7 +406,7 @@ def main(argv=None):
             save_path=args.save_path,
             user_config=args.user_config,
             bmk_config=args.bmk_config,
-            openedit_metadata_file=args.openedit_metadata_file,
+            geditv2_metadata_file=args.geditv2_metadata_file,
         )
     elif args.command == "train-pairs":
         run_train_pairs(

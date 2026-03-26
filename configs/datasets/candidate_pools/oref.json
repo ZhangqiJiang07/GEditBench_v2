@@ -1,12 +1,12 @@
 {
-    "meta_info": "/data/open_edit/data/b_filtered_img_prompt_pair_data/oref/meta_info.jsonl",
+    "meta_info": "data/b_filtered_img_prompt_pair_data/oref/meta_info.jsonl",
     "models": {
-        "Qwen-Image-Edit-2511": "/data/open_edit/data/b_filtered_img_prompt_pair_data/oref/qwen-image-edit-2511_generation_results.jsonl",
-        "Qwen-Image-Edit-2509": "/data/open_edit/data/b_filtered_img_prompt_pair_data/oref/qwen-image-edit-2509_generation_results.jsonl",
-        "Qwen-Image-Edit": "/data/open_edit/data/b_filtered_img_prompt_pair_data/oref/qwen-image-edit_generation_results.jsonl",
-        "Kontext": "/data/open_edit/data/b_filtered_img_prompt_pair_data/oref/kontext_generation_results.jsonl",
-        "Bagel": "/data/open_edit/data/b_filtered_img_prompt_pair_data/oref/bagel_generation_results.jsonl",
-        "Step1x-Edit-v1p2": "/data/open_edit/data/b_filtered_img_prompt_pair_data/oref/step1x_edit1.2_generation_results.jsonl",
-        "Step1x-Edit-v1p2-preview": "/data/open_edit/data/b_filtered_img_prompt_pair_data/oref/step1x_edit1.2-preview_generation_results.jsonl"
+        "Qwen-Image-Edit-2511": "data/b_filtered_img_prompt_pair_data/oref/qwen-image-edit-2511_generation_results.jsonl",
+        "Qwen-Image-Edit-2509": "data/b_filtered_img_prompt_pair_data/oref/qwen-image-edit-2509_generation_results.jsonl",
+        "Qwen-Image-Edit": "data/b_filtered_img_prompt_pair_data/oref/qwen-image-edit_generation_results.jsonl",
+        "Kontext": "data/b_filtered_img_prompt_pair_data/oref/kontext_generation_results.jsonl",
+        "Bagel": "data/b_filtered_img_prompt_pair_data/oref/bagel_generation_results.jsonl",
+        "Step1x-Edit-v1p2": "data/b_filtered_img_prompt_pair_data/oref/step1x_edit1.2_generation_results.jsonl",
+        "Step1x-Edit-v1p2-preview": "data/b_filtered_img_prompt_pair_data/oref/step1x_edit1.2-preview_generation_results.jsonl"
     }
 }

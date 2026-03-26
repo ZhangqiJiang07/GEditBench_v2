@@ -12,8 +12,8 @@ fi
 
 
 BENCH=${1:-editscore}
-LORA_PATH="/data/open_edit/lora_weights"
-BASEMODEL_PATH="/mnt/jfs/model-zoo/Qwen/Qwen3-VL-8B-Instruct"
+LORA_PATH="${REPO_ROOT}/lora_weights"
+BASEMODEL_PATH="/path/to/model-zoo/Qwen/Qwen3-VL-8B-Instruct"
 
 
 LD_PRELOAD=/usr/local/nvidia/lib64/libcuda.so.1 python ${SRC_ROOT}/inference/run_eval.py \
@@ -21,7 +21,7 @@ LD_PRELOAD=/usr/local/nvidia/lib64/libcuda.so.1 python ${SRC_ROOT}/inference/run
   --base-model-path ${BASEMODEL_PATH} \
   --use-flash-attn \
   --bmk ${BENCH} \
-  --bmk-config /data/open_edit/configs/datasets/bmk.json \
+  --bmk-config ${REPO_ROOT}/configs/datasets/bmk.json \
   --max-retries 3 \
   --max-new-tokens 1024 \
   --temperature 0.7 \
@@ -36,5 +36,5 @@ LD_PRELOAD=/usr/local/nvidia/lib64/libcuda.so.1 python ${SRC_ROOT}/inference/run
   --logger-level INFO \
   --do-sample \
   --use-vllm \
-  --merged-model-cache-dir /mnt/jfs/lora_models_cache \
+  --merged-model-cache-dir ~/.cache/geditv2/merged_models \
   --save-details

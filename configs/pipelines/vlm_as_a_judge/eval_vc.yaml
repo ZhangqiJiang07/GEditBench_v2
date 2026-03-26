@@ -11,7 +11,7 @@ metric_configs:
     init_config:
       backend: vllm
       model_name: PVC-Judge
-      ip_address: 100.109.108.99
+      ip_address: ${client_config.ip_address}
       port: ${client_config.vlm_port}
       prompt_info:
         prompt_id: vlm/assessment/visual_consistency/pairwise

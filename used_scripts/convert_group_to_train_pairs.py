@@ -9,7 +9,7 @@ from typing import List, Dict
 from common_utils.data_construction_configs import TASK_METRICS_CONFIG_MAP
 
 PROMPTS_NUM = 1700
-INPUT_JSON_PATH = "/data/auto_pipeline/results/scale_up_pair_results"
+INPUT_JSON_PATH = "data/auto_pipeline/results/scale_up_pair_results"
 GPT_RESPONSE = '''```json
 {{
     "winner": {winner_value}
@@ -250,19 +250,19 @@ def parse_args():
     parser.add_argument('--prefix', type=str, default='', help='Prefix for the output files')
     parser.add_argument(
         '--thresholds-config-file', type=str,
-        default="/data/open_edit/configs/pipelines/data_construction_configs.json",
+        default="configs/pipelines/data_construction_configs.json",
         help='Path to the threshold config file for different tasks.'
     )
     parser.add_argument(
         '--input-dir',
         type=str,
-        default="/data/open_edit/data/c_annotated_group_data",
+        default="data/c_annotated_group_data",
         help='Path to the input directory'
     )
     parser.add_argument(
         '--output-dir',
         type=str,
-        default="/data/open_edit/data/d_train_data",
+        default="data/d_train_data",
         help='Path to the output directory'
     )
     parser.add_argument(

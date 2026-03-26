@@ -9,6 +9,7 @@ import torch.multiprocessing as mp
 from PIL import Image
 
 from autogen.constants import MODEL_PATH_MAP, TURBO_SIGMAS
+from common_utils.project_paths import CONFIGS_ROOT, DATA_ROOT, PROJECT_ROOT, normalize_benchmark_name, resolve_project_path
 from core.cache_manager import CacheManager, generate_cache_key
 
 
@@ -21,7 +22,7 @@ DATASET_MODELS = {
     "kontext",
 }
 
-OPENEDIT_MODELS = {
+GEDITV2_MODELS = {
     "qwen-image-edit",
     "qwen-image-edit-2509",
     "qwen-image-edit-2511",
@@ -39,7 +40,12 @@ OPENEDIT_MODELS = {
 
 
 def _resolve_dataset_root(dataset_path: str) -> str:
-    return dataset_path if os.path.isabs(dataset_path) else os.path.join("/data", dataset_path.lstrip("/"))
+    return str(resolve_project_path(dataset_path))
+
+
+def _resolve_output_root(output_root: str) -> str:
+    resolved = resolve_project_path(output_root)
+    return str(resolved)
 
 
 def generate_suitable_shape(
@@ -217,7 +223,7 @@ def prepare_inputs(model_name: str, image: Image.Image, instruction: str, genera
             }
         raise ValueError(f"Unsupported model `{model_name}` for dataset generation mode")
 
-    if generation_mode == "openedit":
+    if generation_mode == "geditv2":
         if model_name == "qwen-image-edit":
             return {
                 "image": image,
@@ -322,7 +328,7 @@ def prepare_inputs(model_name: str, image: Image.Image, instruction: str, genera
                 "num_inference_steps": 50,
                 "num_images_per_prompt": 1,
             }
-        raise ValueError(f"Unsupported model `{model_name}` for openedit generation mode")
+        raise ValueError(f"Unsupported model `{model_name}` for GEditBench v2 generation mode")
 
     raise ValueError(f"Unknown generation mode: {generation_mode}")
 
@@ -367,7 +373,7 @@ def worker_loop(
 
             if generation_mode == "dataset":
                 save_path = os.path.join(save_root, f"{job['key']}.webp")
-            elif generation_mode == "openedit":
+            elif generation_mode == "geditv2":
                 save_path = os.path.join(save_root, model_name, f"{job['key']}.png")
             else:
                 raise ValueError(f"Unknown generation mode: {generation_mode}")
@@ -454,7 +460,7 @@ def run_dataset_generation(
     model: str,
     dataset_path: str,
     gpus_per_worker: int = 1,
-    output_bucket_prefix: str = "s3://jiangzhangqi",
+    output_bucket_prefix: str = "data/generated_images",
 ) -> str:
     if model not in DATASET_MODELS:
         raise ValueError(f"Unsupported model for dataset generation: {model}")
@@ -493,12 +499,8 @@ def run_dataset_generation(
     writer = mp.Process(target=writer_loop, args=(result_queue, cache_file, len(gpu_groups)))
     writer.start()
 
-    output_image_save_path = os.path.join(
-        output_bucket_prefix,
-        dataset_root.lstrip("/"),
-        task,
-        model,
-    )
+    output_root = _resolve_output_root(output_bucket_prefix)
+    output_image_save_path = os.path.join(output_root, task, model)
     workers = launch_workers(
         gpu_groups=gpu_groups,
         model_name=model,
@@ -541,7 +543,7 @@ def run_dataset_generation(
     return output_file
 
 
-def prepare_openedit_inputs(bench_path: str) -> List[dict]:
+def prepare_geditv2_inputs(bench_path: str) -> List[dict]:
     meta_info = _load_jsonl(os.path.join(bench_path, "metadata.jsonl"))
     items = []
     for item in meta_info:
@@ -556,15 +558,15 @@ def prepare_openedit_inputs(bench_path: str) -> List[dict]:
     return items
 
 
-def _resolve_openedit_bench_path(bench_path: Optional[str], bmk_config_path: str) -> str:
+def _resolve_geditv2_bench_path(bench_path: Optional[str], bmk_config_path: str) -> str:
     if bench_path:
-        return bench_path
+        return str(resolve_project_path(bench_path))
     with open(bmk_config_path, "r", encoding="utf-8") as f:
         bmk_config = json.load(f)
-    return bmk_config["openedit"]["bench_path"]
+    return str(resolve_project_path(bmk_config["geditv2"]["bench_path"]))
 
 
-def _merge_openedit_to_metadata(
+def _merge_geditv2_to_metadata(
     bench_path: str,
     model: str,
     dataset: List[dict],
@@ -600,16 +602,16 @@ def _merge_openedit_to_metadata(
     return merged_output_path
 
 
-def run_openedit_generation(
+def run_geditv2_generation(
     model: str,
     gpus_per_worker: int = 1,
     bench_path: Optional[str] = None,
-    image_save_dir: str = "/path/to/openedit/images/edited",
+    image_save_dir: str = str(PROJECT_ROOT / "geditv2_bench" / "images" / "edited"),
     merge_to_metadata: bool = False,
-    bmk_config_path: str = "/data/open_edit/configs/datasets/bmk.json",
+    bmk_config_path: str = str(CONFIGS_ROOT / "datasets" / "bmk.json"),
 ) -> Tuple[str, Optional[str]]:
-    if model not in OPENEDIT_MODELS:
-        raise ValueError(f"Unsupported model for openedit generation: {model}")
+    if model not in GEDITV2_MODELS:
+        raise ValueError(f"Unsupported model for GEditBench v2 generation: {model}")
     if gpus_per_worker < 1:
         raise ValueError("`gpus_per_worker` must be >= 1.")
 
@@ -624,8 +626,10 @@ def run_openedit_generation(
         )
     print(f"Detected GPUs: {gpu_count}. Launching workers: {gpu_groups}")
 
-    bench_path = _resolve_openedit_bench_path(bench_path, bmk_config_path)
-    dataset = prepare_openedit_inputs(bench_path)
+    bmk_config_path = str(resolve_project_path(bmk_config_path))
+    bench_path = _resolve_geditv2_bench_path(bench_path, bmk_config_path)
+    image_save_dir = str(resolve_project_path(image_save_dir))
+    dataset = prepare_geditv2_inputs(bench_path)
 
     cache_dir = os.path.join(image_save_dir, ".cache")
     os.makedirs(cache_dir, exist_ok=True)
@@ -650,7 +654,7 @@ def run_openedit_generation(
         save_root=image_save_dir,
         job_queue=job_queue,
         result_queue=result_queue,
-        generation_mode="openedit",
+        generation_mode="geditv2",
         output_format="PNG",
     )
 
@@ -685,7 +689,7 @@ def run_openedit_generation(
 
     merged_output = None
     if merge_to_metadata:
-        merged_output = _merge_openedit_to_metadata(
+        merged_output = _merge_geditv2_to_metadata(
             bench_path=bench_path,
             model=model,
             dataset=dataset,
@@ -695,3 +699,12 @@ def run_openedit_generation(
 
     return output_file, merged_output
 
+
+OPENEDIT_MODELS = GEDITV2_MODELS
+prepare_openedit_inputs = prepare_geditv2_inputs
+_resolve_openedit_bench_path = _resolve_geditv2_bench_path
+_merge_openedit_to_metadata = _merge_geditv2_to_metadata
+
+
+def run_openedit_generation(*args, **kwargs) -> Tuple[str, Optional[str]]:
+    return run_geditv2_generation(*args, **kwargs)
