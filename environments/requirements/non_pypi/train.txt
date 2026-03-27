@@ -1,1 +1,1 @@
-# Non-PyPI dependencies for train profile.
+# No external non-PyPI dependencies are required.

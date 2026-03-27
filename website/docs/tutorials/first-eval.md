@@ -14,7 +14,7 @@ Use `eval` when you need to answer questions such as:
 
 You need three categories of inputs:
 
-1. A benchmark key, for example `geditv2` or `vc_reward`
+1. A benchmark key, for example `openedit` or `vc_reward`
 2. A `vlm-as-a-judge` pipeline config
 3. A valid `user_config.yaml`
 
@@ -26,7 +26,7 @@ The benchmark registry is loaded from:
 
 Visible benchmark keys in the repository include:
 
-- `geditv2`
+- `openedit`
 - `vc_reward`
 - `editscore_consistency`
 - `editscore_prompt_following`
@@ -37,7 +37,7 @@ Visible benchmark keys in the repository include:
 ```bash
 cd <PROJECT_ROOT>
 autopipeline eval \
-  --bmk geditv2 \
+  --bmk openedit \
   --pipeline-config-path <PROJECT_ROOT>/configs/pipelines/vlm_as_a_judge/openai.yaml \
   --user-config <PROJECT_ROOT>/configs/pipelines/user_config.yaml \
   --save-path <PROJECT_ROOT>/data/reward_eval_results
@@ -49,7 +49,7 @@ autopipeline eval \
 <save-path>/<bmk>/<config-name>/<timestamp>.jsonl
 ```
 
-If you run `geditv2`, the metadata filename is folded into the result directory name so that different metadata variants do not overwrite each other.
+If you run `openedit`, the metadata filename is folded into the result directory name so that different metadata variants do not overwrite each other.
 
 ## Simplified output example
 

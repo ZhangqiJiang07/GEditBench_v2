@@ -6,22 +6,29 @@ This directory contains three publishable environment profiles:
 - `train` (source env: `ft`)
 - `pvc_judge` (source env: `editscore`)
 
+The exported manifests are normalized for public installation:
+
+- profile-specific Python versions are recorded (`annotate` uses Python 3.11; `train` and `pvc_judge` use Python 3.12)
+- PyTorch CUDA wheels are resolved from the official PyTorch wheel index
+- installer-only packages (`pip`, `setuptools`, `wheel`, `uv`) are removed from the base manifests
+- `annotate` no longer depends on an external `sam-2` Git checkout because SAM2 is vendored in-repo under `src/sam2`
+
 ## Files
 
-- `../pyproject.toml` + `../uv.lock`
-  - Primary lock/install path for `uv sync --frozen`.
 - `requirements/<profile>.lock.txt`
-  - Python package lock file for `pip` / `uv`.
+  - Public pip/uv manifest for the profile.
+- `requirements/optional/<profile>.txt`
+  - Optional accelerator packages that are not required for a functional base install.
 - `requirements/non_pypi/<profile>.txt`
-  - Git/URL dependencies that are not available on PyPI (for example `sam-2`).
+  - External Git/URL dependencies. These are empty for the current public profiles.
 - `conda/<profile>.from-history.yml`
-  - Conda minimal spec exported from install history (portable baseline).
+  - Minimal conda bootstrap with the correct Python version and `pip`.
 - `conda/<profile>.explicit.txt`
-  - Conda exact package URLs for strict reproduction on compatible systems.
+  - Exact conda package URLs for strict reproduction on compatible Linux systems.
 
 ## Refresh Exports
 
-Run from project root:
+Run from the project root:
 
 ```bash
 ./scripts/export_envs.sh
@@ -35,7 +42,7 @@ Or export one profile:
 
 ## Install
 
-Unified installer:
+Unified one-click installer:
 
 ```bash
 ./scripts/install.sh <annotate|train|pvc_judge> [options]
@@ -44,35 +51,20 @@ Unified installer:
 Examples:
 
 ```bash
-# Auto-select manager: uv first, fallback to pip.
+# Recommended: uv if available, otherwise conda, then pip.
 ./scripts/install.sh annotate
 
-# uv project lock mode (uses pyproject.toml + uv.lock if present)
-# profile -> extra mapping: annotate->annotate, train->train, pvc_judge->pvc-judge
-
-# Force pip
-./scripts/install.sh train --manager pip
-
-# Force uv and custom venv directory
-./scripts/install.sh pvc_judge --manager uv --venv-dir ./.venvs/pvc_judge
-
-# Skip non-PyPI phase if needed
-./scripts/install.sh annotate --skip-non-pypi
-
-# Use conda from-history
+# Create a conda env and then install the normalized pip manifest into it.
 ./scripts/install.sh train --manager conda --env-name train
 
-# Use conda explicit lock (strict, platform-sensitive)
-./scripts/install.sh pvc_judge --manager conda --conda-mode explicit --env-name pvc_judge
+# Force pip with an explicit interpreter.
+./scripts/install.sh pvc_judge --manager pip --python-bin python3.12
+
+# Install optional train accelerators such as flash-attn.
+./scripts/install.sh train --with-optional
 ```
 
-Direct uv usage:
+## Notes
 
-```bash
-uv sync --frozen --extra annotate
-uv sync --frozen --extra train
-uv sync --frozen --extra pvc-judge
-
-# Non-PyPI dependencies are maintained separately:
-uv pip install -r environments/requirements/non_pypi/annotate.txt
-```
+- `train` defaults to the safer `sdpa` attention path in the checked-in training config. Install `requirements/optional/train.txt` if you want to enable FlashAttention again.
+- The full `train` and `pvc_judge` manifests include large CUDA wheels; dry-run resolution can take a while even when there are no version conflicts.

@@ -19,7 +19,7 @@ python -m src.cli.autopipeline
 - `train-pairs`
 
 :::note
-The current implementation hardcodes many defaults under `<PROJECT_ROOT>/...`. If your checkout lives elsewhere, pass `--pipeline-config-path`, `--user-config`, `--save-path`, and related paths explicitly.
+The current implementation hardcodes many defaults under `/data/open_edit/...`. If your checkout lives elsewhere, pass `--pipeline-config-path`, `--user-config`, `--save-path`, and related paths explicitly.
 :::
 
 ## `annotation`
@@ -31,9 +31,9 @@ autopipeline annotation \
   --edit-task <task> \
   --pipeline-config-path <pipeline-yaml> \
   [--max-workers 4] \
-  [--save-path <PROJECT_ROOT>/data/c_annotated_group_data] \
-  [--user-config <PROJECT_ROOT>/configs/pipelines/user_config.yaml] \
-  [--candidate-pool-dir <PROJECT_ROOT>/configs/datasets/candidate_pools]
+  [--save-path /data/open_edit/data/c_annotated_group_data] \
+  [--user-config /data/open_edit/configs/pipelines/user_config.yaml] \
+  [--candidate-pool-dir /data/open_edit/configs/datasets/candidate_pools]
 ```
 
 Parameters:
@@ -56,10 +56,10 @@ autopipeline eval \
   --bmk <benchmark-key> \
   --pipeline-config-path <pipeline-yaml> \
   [--max-workers 4] \
-  [--save-path <PROJECT_ROOT>/data/reward_eval_results] \
-  [--user-config <PROJECT_ROOT>/configs/pipelines/user_config.yaml] \
-  [--bmk-config <PROJECT_ROOT>/configs/datasets/bmk.json] \
-  [--geditv2-metadata-file metadata.jsonl]
+  [--save-path /data/open_edit/data/reward_eval_results] \
+  [--user-config /data/open_edit/configs/pipelines/user_config.yaml] \
+  [--bmk-config /data/open_edit/configs/datasets/bmk.json] \
+  [--openedit-metadata-file metadata.jsonl]
 ```
 
 Parameters:
@@ -72,7 +72,7 @@ Parameters:
 | `--save-path` | No | Result directory. |
 | `--user-config` | No | User config YAML. |
 | `--bmk-config` | No | Benchmark config file. |
-| `--geditv2-metadata-file` | No | Metadata filename used only for `geditv2` evaluation. |
+| `--openedit-metadata-file` | No | Metadata filename used only for `openedit` evaluation. |
 
 ## `train-pairs`
 
@@ -83,11 +83,11 @@ autopipeline train-pairs \
   --tasks <task1,task2,...> \
   [--prompts-num 1500] \
   [--prefix ""] \
-  [--input-dir <PROJECT_ROOT>/data/c_annotated_group_data] \
-  [--output-dir <PROJECT_ROOT>/data/d_train_data] \
+  [--input-dir /data/open_edit/data/c_annotated_group_data] \
+  [--output-dir /data/open_edit/data/d_train_data] \
   [--mode auto] \
   [--filt-out-strategy three_tiers] \
-  [--thresholds-config-file <PROJECT_ROOT>/configs/pipelines/data_construction_configs.json]
+  [--thresholds-config-file /data/open_edit/configs/pipelines/data_construction_configs.json]
 ```
 
 Parameters:

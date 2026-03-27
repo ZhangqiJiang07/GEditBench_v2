@@ -3,18 +3,18 @@ import type {Config} from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
 
 const config: Config = {
-  title: 'GEditBench v2',
-  tagline: 'Open-source benchmark and pipeline docs for image-edit evaluation',
+  title: 'AutoPipeline',
+  tagline: 'Open-source pipelines for image-edit evaluation and preference data construction',
   favicon: 'img/favicon.ico',
 
   future: {
     v4: true,
   },
 
-  url: 'https://zhangqijiang07.github.io',
-  baseUrl: '/GEditBench_v2/',
-  organizationName: 'ZhangqiJiang07',
-  projectName: 'GEditBench_v2',
+  url: 'https://autopipeline-docs.example.com',
+  baseUrl: '/',
+  organizationName: 'open-edit',
+  projectName: 'autopipeline-docs',
 
   onBrokenLinks: 'throw',
   markdown: {
@@ -36,7 +36,7 @@ const config: Config = {
           sidebarPath: './sidebars.ts',
           routeBasePath: 'docs',
           editUrl:
-            'https://github.com/ZhangqiJiang07/GEditBench_v2/tree/main/website/',
+            'https://gitlab.basemind.com/i-jiangzhangqi/open_edit/-/tree/main',
           showLastUpdateTime: true,
         },
         blog: false,
@@ -54,9 +54,9 @@ const config: Config = {
       respectPrefersColorScheme: false,
     },
     navbar: {
-      title: 'GEditBench v2',
+      title: 'AutoPipeline',
       logo: {
-        alt: 'GEditBench v2 Logo',
+        alt: 'AutoPipeline Logo',
         src: 'img/logo.svg',
       },
       items: [
@@ -72,7 +72,7 @@ const config: Config = {
           label: 'Pipeline Docs',
         },
         {
-          href: 'https://github.com/ZhangqiJiang07/GEditBench_v2',
+          href: 'https://gitlab.basemind.com/i-jiangzhangqi/open_edit',
           label: 'Repo',
           position: 'right',
         },
@@ -121,7 +121,7 @@ const config: Config = {
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} GEditBench Contributors.`,
+      copyright: `Copyright © ${new Date().getFullYear()} AutoPipeline Contributors.`,
     },
     prism: {
       theme: prismThemes.github,

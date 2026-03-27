@@ -45,7 +45,7 @@ This command does the following:
 ```bash
 cd <PROJECT_ROOT>
 autopipeline eval \
-  --bmk geditv2 \
+  --bmk openedit \
   --pipeline-config-path <PROJECT_ROOT>/configs/pipelines/vlm_as_a_judge/openai.yaml \
   --user-config <PROJECT_ROOT>/configs/pipelines/user_config.yaml \
   --save-path <PROJECT_ROOT>/data/reward_eval_results
