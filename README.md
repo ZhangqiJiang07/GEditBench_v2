@@ -1,65 +1,68 @@
-# GEditBench v2
+<h1 align="center">GEditBench v2: A Human-Aligned Benchmark for General Image Editing</h1>
 
-GEditBench v2 is an end-to-end framework for building, evaluating, and training visual consistency judges for image editing.
+<p align="center">
+  <!-- <a href="https://arxiv.org/abs/xxxxx"><img src="https://img.shields.io/badge/Paper-arXiv%3Aedit this-b31b1b?logo=arxiv&logoColor=red"></a> -->
+  <a href="https://zhangqijiang07.github.io/gedit2_web/"><img src="https://img.shields.io/badge/%F0%9F%8C%90%20Project%20Page-Website-8A2BE2"></a>
+  <a href="https://huggingface.co/datasets/GEditBench-v2/GEditBench-v2"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-GEditBench v2-blue"></a>
+  <a href="https://huggingface.co/datasets/GEditBench-v2/VCReward-Bench"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-VCReward Bench-blue"></a>
+  <a href="https://huggingface.co/GEditBench-v2/PVC-Judge"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-PVC Judge-blue"></a>
 
-It connects three stages that are usually scattered across separate research codebases: automatic edited-candidate generation (`autogen`), automatic visual-consistency preference construction (`autopipeline`), and LoRA-based VLM training (`autotrain`). The repository also includes reusable benchmark/evaluation utilities, prompt assets, and lightweight CLIs for running the full workflow from data construction to judge inference.
+## 🚀 Overview
+**GEditBench v2** is a comprehensive benchmark with **1,200 real-world user queries spanning 23 tasks**, including a dedicated **open-set category for unconstrained, out-of-distribution editing instructions** beyond predefined tasks.
+To reduce reliance on proprietary API-based evaluation, we further propose **PVC-Judge**, an *open-source* pairwise assessment model for visual consistency, trained via two novel region-decoupled preference data synthesis pipelines.
+Besides, we construct **VCReward-Bench** including **3,506 expert-annotated preference pairs** for evaluating assessment models of image editing in visual consistency dimension.
 
-This repository accompanies an upcoming paper. Citation details will be added once the manuscript is public.
+<p align="center">
+  <img src="assets/teaser.png" alt="GEditBench v2 Overview" width="85%">
+</p>
 
-> Important
-> 
-> The current codebase still reflects internal experiment layouts in several places. Before running it in a new environment, update local model paths, dataset roots, benchmark roots, and API/vLLM endpoints in `configs/`, `src/autogen/constants.py`, and related scripts.
 
-## Highlights
+## 📦 What This Repo Includes? An End-to-End Workflow
 
-- End-to-end workflow from raw image-instruction pairs to a trained pairwise VLM judge.
-- Automatic candidate generation for edited images and benchmark generation for GEditBench v2-style evaluation.
-- Automatic visual-consistency annotation with object-centric, human-centric, and VLM-as-a-judge pipelines.
-- Preference-pair construction utilities for turning grouped annotations into training data.
-- LoRA-based training scripts for Qwen-family VLM judges, with DeepSpeed support.
-- Config-driven design with reusable prompts, modular pipelines, and publishable environment profiles.
-- Lightweight CLIs for generation, annotation, pair construction, training, and evaluation.
-
-## What This Repo Includes
-
-- `autogen`
-  Generates edited candidates from image-editing models, filters raw image-prompt pairs with Qwen3-VL embeddings, and prepares GEditBench v2 benchmark outputs.
-
-- `autopipeline`
-  Builds visual-consistency annotations and preference pairs with modular pipelines. It supports object-centric checks, human-centric checks, and VLM-as-a-judge evaluation.
-
-- `autotrain`
-  Trains pairwise VLM judges with LoRA/DoRA-style adaptation and DeepSpeed-based launch scripts.
-
-- `inference`
-  Runs local evaluation and benchmark inference for trained LoRA judges.
-
-- `configs`, `prompts`, and `environments`
-  Provide experiment configs, prompt assets, and environment profiles for reproducible runs.
-
-## End-to-End Workflow
+### Repository Structure
 
 ```text
-Raw image-prompt pairs
-        |
-        v
-autogen filter
-        |
-        v
-autogen candidate generation
-        |
-        v
-autopipeline annotation
-        |
-        v
-autopipeline train-pairs
-        |
-        v
-autotrain LoRA training
-        |
-        v
-local inference / benchmark evaluation
+GEditBench_v2/
+├── configs/
+│   ├── datasets/              # candidate pools, benchmark definitions
+│   ├── lora_sft/              # LoRA/VLM training configs
+│   └── pipelines/             # annotation and eval pipeline configs
+├── data/
+│   ├── a_raw_img_prompt_pair_data/        # raw source pairs before filtering
+│   ├── b_filtered_img_prompt_pair_data/   # filtered subsets and generated candidate metadata
+│   ├── c_annotated_group_data/            # grouped annotation outputs
+│   ├── d_train_data/                      # pairwise training data for judge learning
+│   ├── e_openedit_pair_res/               # GEditBench v2/OpenEdit pairwise evaluation results
+│   ├── f_reward_results/                  # reward/judge evaluation outputs
+│   └── z_reward_bench/                    # benchmark assets and shuffled benchmark annotations
+├── environments/              # publishable env profiles and lock files
+├── scripts/                   # installers and utility launchers
+├── src/
+│   ├── autogen/
+│   ├── autopipeline/
+│   ├── autotrain/
+│   ├── cli/
+│   ├── inference/
+│   └── prompts/
+└── vllm_deploy_scripts/       # helper scripts for serving judge backends
 ```
+
+The checked-in `data/` tree is an open-source skeleton with `README.md` placeholders in every tracked folder. See `data/README.md` for the intended contents and file schemas.
+
+GEditBench v2 exposes three primary CLIs:
+
+| CLI | Scope | Representative Commands |
+| --- | --- | --- |
+| `autogen` | data filtering and candidate generation | `filter`, `run candidates`, `run geditv2` |
+| `autopipeline` | annotation, evaluation, and pair construction | `annotation`, `eval`, `train-pairs` |
+| `autotrain` | LoRA VLM training launcher | top-level training entry |
+
+### End-to-End Workflow
+
+<p align="center">
+  <img src="assets/workflow.png" alt="GEditBench v2 Overview" width="85%">
+</p>
+
 
 In practical terms, the repository supports the following loop:
 
@@ -70,54 +73,233 @@ In practical terms, the repository supports the following loop:
 5. Train a VLM judge on those pairs.
 6. Evaluate the resulting judge on GEditBench v2 or reward benchmarks.
 
-## Installation
+## 🎄 Content
+- `autogen` CLI (env & usage)
+- `autopipeline` CLI (env & usage)
+- `autotrain` CLI
+- Inference for PVC-Judge
+- Before using: Configuration You Should Update First
+- Model Arena
 
-### Requirements
 
-- Linux with Python `3.11` or `3.12`
-- CUDA-capable GPU(s) for candidate generation and training
-- Local or remote access to required model checkpoints
-- Optional API or vLLM endpoints for judge-based pipelines
+## 🎞️ `autogen` CLI
 
-### Environment Profiles
-
-The repository ships with three environment profiles:
-
-| Profile | Purpose |
-| --- | --- |
-| `annotate` | `autogen` and `autopipeline` workflows |
-| `train` | `autotrain` LoRA training |
-| `pvc_judge` | local pairwise-judge inference and evaluation |
-
-Environment exports and lock files live under [`environments/`](./environments). See [`environments/README.md`](./environments/README.md) for the full environment-management details.
-
-### Recommended Setup
-
-Install the environment profile you need for the current stage:
+### Environment Setup
 
 ```bash
-# For autogen + autopipeline
-./scripts/install.sh annotate
-source .venvs/annotate/bin/activate
+# if need filtering, please refer to https://github.com/QwenLM/Qwen3-VL-Embedding
+git clone https://github.com/QwenLM/Qwen3-VL-Embedding.git
+cd Qwen3-VL-Embedding
+bash scripts/setup_environment.sh
 
-# For training
-./scripts/install.sh train
-source .venvs/train/bin/activate
-
-# For local judge inference
-./scripts/install.sh pvc_judge
-source .venvs/pvc_judge/bin/activate
+# if only for candidates generation
+pip install git+https://github.com/huggingface/diffusers
 ```
 
-During development, you can invoke the CLIs directly with `python -m src.cli.<tool>`. Optional wrapper installers are also provided:
 
+### Usage
+ 
+**Step0**: Download open-source dataset from HuggingFace, e.g., [UnicEdit-10M](https://huggingface.co/datasets/xiaotanhua/UnicEdit-10M) and [Nano-Consistency-150k](https://huggingface.co/datasets/Yejy53/Nano-consistent-150k).
+
+**Step1**: Prepare data pool
+
+- For Pico-Banana-400k
 ```bash
+python ./src/autogen/prepare_pico_data.py \
+  --task subject-add \
+  --output-dir ./data/a_raw_img_prompt_pair_data \
+  --image-save-path /path/to/save/source/images \
+  --path-to-pico-sft-jsonl /path/to/pico/sft.jsonl
+```
+
+- For Nano-Consistency-150k
+```bash
+python ./src/autogen/prepare_nano_consistent_data.py \
+  --task background_change \
+  --path-to-nano-data /path/to/nano/consistency/data \
+  --output-dir ./data/a_raw_img_prompt_pair_data \
+  --image-save-path /path/to/save/source/images \ # optional
+  --sample-num 4000
+```
+
+- For UnicEdit-10M
+```bash
+python ./src/autogen/prepare_unicedit.py \
+  --path-to-uniedit-data path/to/XrZUMXM-/xiaotanhua/UnicEdit-10M/data \
+  --output-dir ./data/a_raw_img_prompt_pair_data \
+  --max-workers 100
+```
+
+**Step2**: Filter images using `autogen` CIL
+```bash
+# (optional, or you can invoke the CLIs directly with `python -m src.cli.<tool>`)
 ./scripts/install_autogen.sh
-./scripts/install_autopipeline.sh
-./scripts/install_autotrain.sh
+# you can use `python -m src.cli.autogen --help` or autogen --help for detailed information
+
+# filter
+autogen filter \
+  --sample-num 1500 \
+  --task background_change \ # the edit task of the input file
+  --input-file ./data/a_raw_img_prompt_pair_data/subject_add.jsonl \
+  --output-dir ./data/b_filtered_img_prompt_pair_data \
+  --qwen-embedding-model-path /path/to/qwen3/vl/embedding/model \
+  --image-save-path /path/to/the/clean/source/images \
+  --embedding-batch-size 256
 ```
 
-### Configuration You Should Update First
+**Step3**: Generate candidates using `autogen` CIL
+```bash
+autogen run candidates \
+  --task subject-add \
+  --model qwen-image-edit \
+  --dataset-path ./data/b_filtered_img_prompt_pair_data \
+  --gpus-per-worker 1 \
+  --output-bucket-prefix /path/to/save/output/images \
+```
+
+**Step3.5**: Generation for GEditBench v2
+```bash
+autogen run geditv2 \
+  --model qwen-image-edit \
+  --bench-path /path/to/geditv2 \
+  --image-save-dir /path/to/save/output/images \
+  --bmk-config-path ./configs/datasets/bmk.json \
+  --gpus-per-worker 1 \
+  --merge-to-metadata # optional if you want to join model comparison
+```
+
+## 📝 `autopipeline` CLI
+In this work, we propose two novel region-decoupled preference data synthesis pipelines, called object-centric and human-centric. Detailed documents are provided [**here (written entirely by Codex, gpt-5.4 xhigh)**](https://zhangqijiang07.github.io/gedit2_web/docs/intro).
+
+<p align="center">
+  <img src="assets/anno_pipelines.png" alt="Annotation pipelines" width="85%">
+</p>
+
+### Environment Setup
+
+```bash
+./scripts/install_autopipeline.sh # (optional)
+
+conda env create -f environments/annotate.yml
+conda activate annotate
+# or:
+python3.11 -m venv .venvs/annotate
+source .venvs/annotate/bin/activate
+python -m pip install -r environments/requirements/annotate.lock.txt
+```
+
+### Usage (including annotation/evaluation/format transition)
+
+**Annotate** data using, e.g., object-centric, human-centric, or vlm-as-a-judge, pipelines
+First create the task-specific pipeline config in `./configs/pipelines/object_centric (human_centric, or vlm_as_a_judge)`
+```bash
+autopipeline annotation \
+  --edit-task subject_add \
+  --pipeline-config-path $(pwd)/configs/pipelines/object_centric/subject_add.yaml \
+  --save-path $(pwd)/data/c_annotated_group_data \
+  --user-config $(pwd)/configs/pipelines/user_config.yaml \
+  --candidate-pool-dir $(pwd)/configs/datasets/candidate_pools
+```
+The repository also includes helper scripts such as  `vllm_deploy_scripts/*.sh` for implementing vLLM server.
+
+
+**Evaluate** models on Reward benchmarks
+```bash
+autopipeline eval \
+  --bmk vc_reward \
+  --pipeline-config-path $(pwd)/configs/pipelines/vlm_as_a_judge/openai.yaml \
+  --user-config $(pwd)/configs/pipelines/user_config.yaml \
+  --save-path $(pwd)/data/f_reward_results \
+  --max-workers 200 \
+  --geditv2-metadata-file metadata.jsonl # (optional for model comparison on GEditBench v2)
+```
+
+**Format** transition for PVC-Judge training: Convert grouped results into preference pairs
+```bash
+autopipeline train-pairs \
+  --tasks color_alter,material_alter \
+  --prompts-num 1500 \
+  --input-dir $(pwd)/data/c_annotated_group_data \
+  --output-dir $(pwd)/data/d_train_data \
+  --mode auto \ # group for object- and human-centric pipelines; judge for vlm-as-a-judge pipeline
+  --filt-out-strategy head_tail \
+  --thresholds-config-file $(pwd)/configs/pipelines/data_construction_configs.json \
+```
+
+
+## 🏃‍♂️ `autotrain` CLI
+
+### Environment Setup
+```bash
+./scripts/install_autotrain.sh # (optional)
+
+conda env create -f environments/train.yml
+conda activate train
+# or:
+python3.12 -m venv .venvs/train
+source .venvs/train/bin/activate
+python -m pip install -r environments/requirements/train.lock.txt
+python -m pip install -r environments/requirements/optional/train.txt
+```
+
+### Usage
+The training launcher resolves the YAML config in `./configs/lora_sft/`, creates an output directory, and starts DeepSpeed on `src/autotrain/train/train_sft_lora.py`.
+```bash
+autotrain \
+  --config qwen3_vl_8b_train \
+  --config-path $(pwd)/configs/lora_sft \
+  --num-gpus 8
+```
+
+## 🥏 Inference for PVC-Judge
+
+### Packaged as an online client
+- Merge LoRA weights to models, required env `torch/peft/transformers`
+```bash
+python ./scripts/merge_lora.py \
+  --base-model-path /path/to/Qwen3/VL/8B/Instruct \
+  --lora-weights-path /path/to/LoRA/Weights \
+  --model-save-dir /path/to/save/PVC/Judge/model
+```
+
+- Implement online server via vLLM
+```bash
+python -m vllm.entrypoints.openai.api_server \
+  --model /path/to/save/PVC/Judge/model \
+  --served-model-name PVC-Judge \
+  --tensor-parallel-size 1 \
+  --mm-encoder-tp-mode data \
+  --limit-mm-per-prompt.video 0 \
+  --host 0.0.0.0 \
+  --port 25930 \
+  --dtype bfloat16 \
+  --gpu-memory-utilization 0.80 \
+  --max_num_seqs 32 \
+  --max-model-len 48000 \
+  --distributed-executor-backend mp
+```
+
+- use `autopipeline` to inference
+See `autopipeline` Usage!
+
+
+### Offline
+
+```bash
+# For local judge inference
+conda env create -f environments/pvc_judge.yml
+conda activate pvc_judge
+# or:
+python3.12 -m venv .venvs/pvc_judge
+source .venvs/pvc_judge/bin/activate
+python -m pip install -r environments/requirements/pvc_judge.lock.txt
+
+
+# Run
+bash ./scripts/local_eval.sh vc_reward
+```
+
+## 🚨 Before using: Configuration You Should Update First
 
 Before the first run, review these files and replace internal defaults with your own paths and endpoints:
 
@@ -134,275 +316,7 @@ At minimum, check:
 - credentials and API keys
 - output directories
 
-## Quick Start
 
-The examples below use direct module invocation so they work even before installing shell wrappers.
+## ⚔️ Model Arena
 
-### 1. Filter raw image-instruction pairs
 
-```bash
-python -m src.cli.autogen filter \
-  --task subject_add \
-  --input-file /path/to/raw_pairs.jsonl \
-  --output-dir $(pwd)/data/b_filtered_img_prompt_pair_data \
-  --qwen-embedding-model-path /path/to/Qwen3-VL-Embedding-8B
-```
-
-This stage selects a diverse subset of source examples and writes a task-specific `meta_info.jsonl` under `data/b_filtered_img_prompt_pair_data/<task>/`.
-
-### 2. Generate edited candidates
-
-```bash
-python -m src.cli.autogen run candidates \
-  --task subject-add \
-  --model qwen-image-edit \
-  --dataset-path $(pwd)/data/b_filtered_img_prompt_pair_data \
-  --gpus-per-worker 1
-```
-
-Supported generation backends in the current codebase include `qwen-image-edit`, `qwen-image-edit-2509`, `qwen-image-edit-2511`, `step1x_edit1.2`, `step1x_edit1.2-preview`, `kontext`, and several GEditBench v2 benchmark generation models such as `flux.2_dev`, `glm_image`, `longcat_image_edit`, and `FireRed-Image-Edit-1.1`.
-
-### 3. Run automatic annotation
-
-```bash
-python -m src.cli.autopipeline annotation \
-  --edit-task subject_add \
-  --pipeline-config-path $(pwd)/configs/pipelines/object_centric/subject_add.yaml \
-  --save-path $(pwd)/data/c_annotated_group_data \
-  --user-config $(pwd)/configs/pipelines/user_config.yaml \
-  --candidate-pool-dir $(pwd)/configs/datasets/candidate_pools
-```
-
-This stage aggregates per-candidate results into grouped task outputs such as `data/c_annotated_group_data/subject_add_grouped.jsonl`.
-
-### 4. Convert grouped results into preference pairs
-
-```bash
-python -m src.cli.autopipeline train-pairs \
-  --tasks subject_add \
-  --input-dir $(pwd)/data/c_annotated_group_data \
-  --output-dir $(pwd)/data/d_train_data \
-  --mode auto \
-  --filt-out-strategy three_tiers \
-  --thresholds-config-file $(pwd)/configs/pipelines/data_construction_configs.json
-```
-
-### 5. Train a LoRA judge
-
-```bash
-python -m src.cli.autotrain \
-  --config qwen3_vl_8b_train \
-  --config-path $(pwd)/configs/lora_sft \
-  --num-gpus 8
-```
-
-The training launcher resolves the YAML config, creates an output directory, and starts DeepSpeed on `src/autotrain/train/train_sft_lora.py`.
-
-## CLI Overview
-
-GEditBench v2 exposes three primary CLIs:
-
-| CLI | Scope | Representative Commands |
-| --- | --- | --- |
-| `autogen` | data filtering and candidate generation | `filter`, `run candidates`, `run geditv2` |
-| `autopipeline` | annotation, evaluation, and pair construction | `annotation`, `eval`, `train-pairs` |
-| `autotrain` | LoRA VLM training launcher | top-level training entry |
-
-Examples:
-
-```bash
-python -m src.cli.autogen --help
-python -m src.cli.autopipeline --help
-python -m src.cli.autotrain --help
-```
-
-If you prefer shell commands instead of module invocation:
-
-```bash
-autogen --help
-autopipeline --help
-autotrain --help
-```
-
-## Supported Tasks And Pipelines
-
-### Task Families
-
-The current repository contains candidate-pool or pipeline configs for tasks such as:
-
-- `background_change`
-- `camera_motion`
-- `color_alter`
-- `cref`
-- `enhancement`
-- `material_alter`
-- `motion_change`
-- `object_extraction`
-- `oref`
-- `ps_human`
-- `size_adjustment`
-- `sref`
-- `style_transfer`
-- `subject_add`
-- `subject_remove`
-- `subject_replace`
-- `text_editing`
-- `tone_transfer`
-
-### Pipeline Families
-
-Available pipeline recipes are organized under `configs/pipelines/`:
-
-- `object_centric`
-  For tasks where local object appearance, structure, or identity are the primary concern.
-
-- `human_centric`
-  For tasks involving people, pose, hair, face identity, or body-consistency constraints.
-
-- `vlm_as_a_judge`
-  For pairwise or score-based VLM evaluation pipelines.
-
-- `ablation`
-  For model-comparison or judge-comparison experiments.
-
-## Repository Structure
-
-```text
-GEditBench_v2/
-├── configs/
-│   ├── datasets/              # candidate pools, benchmark definitions
-│   ├── lora_sft/              # LoRA/VLM training configs
-│   └── pipelines/             # annotation and eval pipeline configs
-├── data/
-│   ├── a_raw_img_prompt_pair_data/
-│   ├── b_filtered_img_prompt_pair_data/
-│   ├── c_annotated_group_data/
-│   ├── d_train_data/
-│   ├── e_geditv2_pair_res/
-│   ├── f_reward_results/
-│   └── z_reward_bench/
-├── environments/              # publishable env profiles and lock files
-├── scripts/                   # installers and utility launchers
-├── src/
-│   ├── autogen/
-│   ├── autopipeline/
-│   ├── autotrain/
-│   ├── cli/
-│   ├── inference/
-│   └── prompts/
-└── vllm_deploy_scripts/       # helper scripts for serving judge backends
-```
-
-## Configuration And Data Convention
-
-### Config-Driven Design
-
-Most workflows are driven by explicit config files rather than hardcoded experiment logic:
-
-- `configs/datasets/`
-  Candidate-pool definitions and benchmark roots.
-
-- `configs/pipelines/`
-  Pipeline recipes for object-centric, human-centric, judge-based, and ablation experiments.
-
-- `configs/lora_sft/`
-  Training recipes for LoRA-based VLM fine-tuning.
-
-- `src/prompts/assets/`
-  Versioned prompt assets for LLM parsing, grounding, visual consistency, instruction following, and visual quality.
-
-### Staged Data Layout
-
-The `data/` directory is organized as a staged workflow:
-
-| Stage | Meaning |
-| --- | --- |
-| `a_raw_img_prompt_pair_data` | raw source pairs before filtering |
-| `b_filtered_img_prompt_pair_data` | filtered subsets and generated candidate metadata |
-| `c_annotated_group_data` | grouped annotation outputs |
-| `d_train_data` | pairwise training data for judge learning |
-| `e_geditv2_pair_res` | GEditBench v2 evaluation metadata/results |
-| `f_reward_results` | reward/judge evaluation outputs |
-| `z_reward_bench` | benchmark assets and shuffled benchmark annotations |
-
-This staged naming makes it easier to cache intermediate outputs, rerun only one phase, and keep experiment artifacts separate.
-
-## Evaluation
-
-There are two main evaluation paths in the current repository.
-
-### Config-Driven Pipeline Evaluation
-
-Use `autopipeline eval` when you want to run evaluation through a configured pipeline:
-
-```bash
-python -m src.cli.autopipeline eval \
-  --bmk vc_reward \
-  --pipeline-config-path $(pwd)/configs/pipelines/ablation/eval_vc_qwen3.yaml \
-  --save-path $(pwd)/data/f_reward_results \
-  --user-config $(pwd)/configs/pipelines/user_config.yaml \
-  --bmk-config $(pwd)/configs/datasets/bmk.json
-```
-
-Current benchmark keys defined in `configs/datasets/bmk.json` include:
-
-- `editscore_consistency`
-- `editscore_prompt_following`
-- `editreward_visual_quality`
-- `vc_reward`
-- `geditv2`
-
-### Local LoRA Judge Inference
-
-Use `src/inference/run_eval.py` when you want to evaluate a trained LoRA judge directly:
-
-```bash
-python src/inference/run_eval.py \
-  --lora-model-path /path/to/lora_adapter \
-  --base-model-path /path/to/base_vlm \
-  --bmk editscore_consistency \
-  --bmk-config $(pwd)/configs/datasets/bmk.json \
-  --prompt-id vlm/assessment/visual_consistency/pairwise \
-  --prompt-version v1 \
-  --use-vllm
-```
-
-The repository also includes helper scripts such as `scripts/local_eval.sh` and `vllm_deploy_scripts/*.sh` for local serving and judge evaluation.
-
-## Reproducibility
-
-GEditBench v2 is structured to make experiment reruns and environment export manageable:
-
-- environment profiles and lock files live under `environments/`
-- pipeline and training behavior are configuration-driven
-- prompt templates are versioned under `src/prompts/assets/`
-- logs are collected under `logs/`
-- cached intermediate results are stored in per-stage `.cache` directories
-- historical training configs are archived under `configs/lora_sft/history/`
-
-For a public release, we recommend pinning:
-
-- model versions
-- benchmark snapshots
-- prompt versions
-- training configs
-- evaluation configs
-- environment profile versions
-
-## Roadmap
-
-This repository is already usable as a research framework, but several public-release tasks are still worth completing:
-
-- replace remaining internal absolute paths with environment-variable or config-template defaults
-- sanitize and externalize private endpoints, credentials, and machine-specific settings
-- provide public data-preparation instructions for benchmark assets not stored in this repository
-- publish the accompanying paper and add a citation block
-- add a license file and contribution guidelines for the first public release
-
-## Citation
-
-If you use GEditBench v2 in your research, please cite the accompanying paper once it is public. A BibTeX entry will be added here when the preprint is released.
-
-## License
-
-This repository does not yet include a published license file. Add a `LICENSE` file before the first public open-source release.

@@ -1,0 +1,9 @@
+name: pvc_judge
+channels:
+  - conda-forge
+dependencies:
+  - python=3.12
+  - pip
+  - pip:
+      - -r requirements/pvc_judge.lock.txt
+      - -r requirements/non_pypi/pvc_judge.txt

@@ -14,10 +14,10 @@ PYTHON_BIN=${PYTHON_BIN:-python3}
 BOOTSTRAP=${1:-100}
 EXCLUDE_MODELS=${2:-}
 
-RESULTS_ROOT="${REPO_ROOT}/data/e_geditv2_pair_res"
-IF_RESULTS_PATH="${RESULTS_ROOT}/geditv2_eval_if_metadata_example.jsonl"
-VQ_RESULTS_PATH="${RESULTS_ROOT}/geditv2/eval_vq_metadata/example.jsonl"
-VC_RESULTS_PATH="${RESULTS_ROOT}/geditv2/eval_vc_metadata/example.jsonl"
+RESULTS_ROOT="${REPO_ROOT}/data/e_openedit_pair_res/openedit"
+IF_RESULTS_PATH="${RESULTS_ROOT}/eval_if_metadata/example.jsonl"
+VQ_RESULTS_PATH="${RESULTS_ROOT}/eval_vq_metadata/example.jsonl"
+VC_RESULTS_PATH="${RESULTS_ROOT}/eval_vc_metadata/example.jsonl"
 
 CMD=(
   "${PYTHON_BIN}" "${SRC_ROOT}/common_utils/elo_score.py"

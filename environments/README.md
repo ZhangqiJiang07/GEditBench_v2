@@ -15,14 +15,16 @@ The exported manifests are normalized for public installation:
 
 ## Files
 
+- `<profile>.yml`
+  - Direct-install conda manifest. Use `conda env create -f environments/<profile>.yml`.
 - `requirements/<profile>.lock.txt`
-  - Public pip/uv manifest for the profile.
+  - Direct pip manifest for the profile.
 - `requirements/optional/<profile>.txt`
   - Optional accelerator packages that are not required for a functional base install.
 - `requirements/non_pypi/<profile>.txt`
-  - External Git/URL dependencies. These are empty for the current public profiles.
+  - External Git/URL dependencies. These are empty for the current public profiles and are already referenced by `<profile>.yml`.
 - `conda/<profile>.from-history.yml`
-  - Minimal conda bootstrap with the correct Python version and `pip`.
+  - Minimal conda bootstrap used to generate `<profile>.yml`.
 - `conda/<profile>.explicit.txt`
   - Exact conda package URLs for strict reproduction on compatible Linux systems.
 
@@ -42,27 +44,48 @@ Or export one profile:
 
 ## Install
 
-Unified one-click installer:
+Use the static manifests directly.
 
 ```bash
-./scripts/install.sh <annotate|train|pvc_judge> [options]
+conda env create -f environments/annotate.yml
+conda activate annotate
 ```
 
-Examples:
+Or use `venv + pip`:
 
 ```bash
-# Recommended: uv if available, otherwise conda, then pip.
-./scripts/install.sh annotate
-
-# Create a conda env and then install the normalized pip manifest into it.
-./scripts/install.sh train --manager conda --env-name train
-
-# Force pip with an explicit interpreter.
-./scripts/install.sh pvc_judge --manager pip --python-bin python3.12
-
-# Install optional train accelerators such as flash-attn.
-./scripts/install.sh train --with-optional
+python3.11 -m venv .venvs/annotate
+source .venvs/annotate/bin/activate
+python -m pip install -r environments/requirements/annotate.lock.txt
 ```
+
+Profile-specific examples:
+
+```bash
+# annotate
+conda env create -f environments/annotate.yml
+# or:
+python3.11 -m venv .venvs/annotate
+source .venvs/annotate/bin/activate
+python -m pip install -r environments/requirements/annotate.lock.txt
+
+# train
+conda env create -f environments/train.yml
+# or:
+python3.12 -m venv .venvs/train
+source .venvs/train/bin/activate
+python -m pip install -r environments/requirements/train.lock.txt
+python -m pip install -r environments/requirements/optional/train.txt
+
+# pvc_judge
+conda env create -f environments/pvc_judge.yml
+# or:
+python3.12 -m venv .venvs/pvc_judge
+source .venvs/pvc_judge/bin/activate
+python -m pip install -r environments/requirements/pvc_judge.lock.txt
+```
+
+`scripts/install.sh` is still available, but it is now only a thin wrapper over these checked-in manifests.
 
 ## Notes
 

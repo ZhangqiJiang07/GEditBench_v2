@@ -13,6 +13,7 @@ Description:
     pvc_judge <- editscore
 
 Outputs:
+  environments/<profile>.yml
   environments/requirements/<profile>.lock.txt
   environments/requirements/optional/<profile>.txt
   environments/requirements/non_pypi/<profile>.txt
@@ -155,7 +156,7 @@ write_optional_requirements() {
       cat > "${optional_file}" <<'EOF'
 # Optional accelerator packages for the train profile.
 # Install them after the base environment with:
-#   ./scripts/install.sh train --with-optional
+#   python -m pip install -r environments/requirements/optional/train.txt
 flash_attn==2.8.3
 EOF
       ;;
@@ -234,6 +235,19 @@ normalize_conda_history() {
   fi
 }
 
+write_install_yaml() {
+  local profile="$1"
+  local install_file="${ENV_ROOT}/${profile}.yml"
+  local history_file="${CONDA_ROOT}/${profile}.from-history.yml"
+
+  cat "${history_file}" > "${install_file}"
+  cat >> "${install_file}" <<EOF
+  - pip:
+      - -r requirements/${profile}.lock.txt
+      - -r requirements/non_pypi/${profile}.txt
+EOF
+}
+
 for profile in "${profiles[@]}"; do
   source_env="$(source_env_for_profile "${profile}")"
 
@@ -245,6 +259,7 @@ for profile in "${profiles[@]}"; do
   write_non_pypi_requirements "${profile}"
   normalize_lock_for_public_release "${profile}"
   normalize_conda_history "${profile}"
+  write_install_yaml "${profile}"
 done
 
 echo "[export] Done."

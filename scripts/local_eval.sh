@@ -13,7 +13,7 @@ fi
 
 BENCH=${1:-editscore}
 LORA_PATH="${REPO_ROOT}/lora_weights"
-BASEMODEL_PATH="/path/to/model-zoo/Qwen/Qwen3-VL-8B-Instruct"
+BASEMODEL_PATH="/path/to/Qwen/Qwen3-VL-8B-Instruct"
 
 
 LD_PRELOAD=/usr/local/nvidia/lib64/libcuda.so.1 python ${SRC_ROOT}/inference/run_eval.py \

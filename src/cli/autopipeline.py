@@ -3,7 +3,7 @@ import json
 import argparse
 import sys
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 SRC_ROOT = Path(__file__).resolve().parents[1]
 PROJECT_ROOT = SRC_ROOT.parent
@@ -11,7 +11,14 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.common_utils.logging_util import logger_init
-from src.common_utils.project_paths import CONFIGS_ROOT, DATA_ROOT, LOGS_ROOT, normalize_benchmark_name
+from src.common_utils.project_paths import (
+    CONFIGS_ROOT,
+    DATA_ROOT,
+    DEFAULT_BENCHMARK_NAME,
+    LOGS_ROOT,
+    normalize_benchmark_name,
+    resolve_project_path,
+)
 
 _LOGGER = None
 
@@ -20,7 +27,8 @@ DEFAULT_USER_CONFIG = str(CONFIGS_ROOT / "pipelines" / "user_config.yaml")
 DEFAULT_CANDIDATE_POOL_DIR = str(CONFIGS_ROOT / "datasets" / "candidate_pools")
 DEFAULT_BMK_CONFIG = str(CONFIGS_ROOT / "datasets" / "bmk.json")
 DEFAULT_ANNOTATION_SAVE_PATH = str(DATA_ROOT / "c_annotated_group_data")
-DEFAULT_EVAL_SAVE_PATH = str(DATA_ROOT / "reward_eval_results")
+DEFAULT_GEDITV2_EVAL_SAVE_PATH = str(DATA_ROOT / "e_openedit_pair_res")
+DEFAULT_REWARD_EVAL_SAVE_PATH = str(DATA_ROOT / "f_reward_results")
 DEFAULT_TRAIN_PAIRS_INPUT_DIR = str(DATA_ROOT / "c_annotated_group_data")
 DEFAULT_TRAIN_PAIRS_OUTPUT_DIR = str(DATA_ROOT / "d_train_data")
 DEFAULT_TRAIN_PAIRS_THRESHOLDS_CONFIG = str(CONFIGS_ROOT / "pipelines" / "data_construction_configs.json")
@@ -42,6 +50,19 @@ def _pipeline_tag(pipeline_name: str) -> str:
     if _temp_name[0] == '_':
         _temp_name = _temp_name[1:]
     return _temp_name
+
+
+def _default_eval_save_path(bmk: str) -> str:
+    normalized_bmk = normalize_benchmark_name(bmk)
+    if normalized_bmk == DEFAULT_BENCHMARK_NAME:
+        return DEFAULT_GEDITV2_EVAL_SAVE_PATH
+    return DEFAULT_REWARD_EVAL_SAVE_PATH
+
+
+def _output_benchmark_dir(normalized_bmk: str) -> str:
+    if normalized_bmk == DEFAULT_BENCHMARK_NAME:
+        return "openedit"
+    return normalized_bmk
 
 
 def _build_executor(pipeline_name: str, max_workers: int):
@@ -155,7 +176,7 @@ def run_eval(
     bmk: str,
     pipeline_config_path: str,
     max_workers: int = 4,
-    save_path: str = DEFAULT_EVAL_SAVE_PATH,
+    save_path: Optional[str] = None,
     user_config: str = DEFAULT_USER_CONFIG,
     bmk_config: str = DEFAULT_BMK_CONFIG,
     geditv2_metadata_file: str = None,
@@ -167,6 +188,7 @@ def run_eval(
     from src.core.cache_manager import CacheManager
     from src.core.config_engine import ConfigEngine
     normalized_bmk = normalize_benchmark_name(bmk)
+    resolved_save_path = str(resolve_project_path(save_path or _default_eval_save_path(bmk)))
     if normalized_bmk == "geditv2" and geditv2_metadata_file is None:
         print("geditv2_metadata_file is not specified. Defaulting to 'metadata.jsonl'.")
         geditv2_metadata_file = "metadata.jsonl"
@@ -199,7 +221,7 @@ def run_eval(
 
     pipeline_name = pipeline_config["name"]
     cache_path = os.path.join(
-        save_path,
+        resolved_save_path,
         ".cache",
         f"{normalized_bmk}_{_pipeline_tag(pipeline_config_path)}_results_cache.jsonl",
     )
@@ -216,9 +238,13 @@ def run_eval(
     all_results = runner.run()
     eval_res_name = os.path.splitext(os.path.basename(pipeline_config_path))[0]
     if normalized_bmk == "geditv2":
-        eval_res_name += f"_{os.path.splitext(os.path.basename(geditv2_metadata_file))[0]}"
+        if not eval_res_name.endswith("_metadata"):
+            eval_res_name += "_metadata"
+        meta_stem = os.path.splitext(os.path.basename(geditv2_metadata_file))[0]
+        if meta_stem != "metadata":
+            eval_res_name += f"_{meta_stem}"
     timestamp = pd.Timestamp.now().strftime("%Y%m%d_%H%M%S")
-    results_save_path = os.path.join(save_path, normalized_bmk, eval_res_name)
+    results_save_path = os.path.join(resolved_save_path, _output_benchmark_dir(normalized_bmk), eval_res_name)
     os.makedirs(results_save_path, exist_ok=True)
     results_file = os.path.join(results_save_path, f"{timestamp}.jsonl")
     _get_logger().info("Saving final grouped results to %s...", results_file)
@@ -306,8 +332,12 @@ def build_parser() -> argparse.ArgumentParser:
     eval_parser.add_argument(
         "--save-path",
         type=str,
-        default=DEFAULT_EVAL_SAVE_PATH,
-        help="Directory to save outputs and cache.",
+        default=None,
+        help=(
+            "Directory to save outputs and cache. "
+            "Defaults to data/e_openedit_pair_res for GEditBench v2, "
+            "and data/f_reward_results for reward benchmarks."
+        ),
     )
     eval_parser.add_argument(
         "--user-config",

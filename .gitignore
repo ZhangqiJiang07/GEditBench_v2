@@ -1,4 +1,6 @@
-data/
+data/*
+!data/**/
+!data/**/README.md
 logs/
 configs/lora_sft/history/
 geditv2_bench/
@@ -27,6 +29,8 @@ env/
 
 # Common local scratch files
 .cache/
+!data/**/.cache/
+!data/**/.cache/README.md
 tmp/
 *.log
 

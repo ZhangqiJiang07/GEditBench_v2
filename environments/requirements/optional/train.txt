@@ -1,4 +1,4 @@
 # Optional accelerator packages for the train profile.
 # Install them after the base environment with:
-#   ./scripts/install.sh train --with-optional
+#   python -m pip install -r environments/requirements/optional/train.txt
 flash_attn==2.8.3

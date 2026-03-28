@@ -1,0 +1,10 @@
+name: annotate
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - ipykernel
+  - pip
+  - pip:
+      - -r requirements/annotate.lock.txt
+      - -r requirements/non_pypi/annotate.txt
