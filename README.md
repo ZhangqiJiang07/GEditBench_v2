@@ -3,9 +3,9 @@
 <p align="center">
   <!-- <a href="https://arxiv.org/abs/xxxxx"><img src="https://img.shields.io/badge/Paper-arXiv%3Aedit this-b31b1b?logo=arxiv&logoColor=red"></a> -->
   <a href="https://zhangqijiang07.github.io/gedit2_web/"><img src="https://img.shields.io/badge/%F0%9F%8C%90%20Project%20Page-Website-8A2BE2"></a>
-  <a href="https://huggingface.co/datasets/GEditBench-v2/GEditBench-v2"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-GEditBench v2-blue"></a>
-  <a href="https://huggingface.co/datasets/GEditBench-v2/VCReward-Bench"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-VCReward Bench-blue"></a>
-  <a href="https://huggingface.co/GEditBench-v2/PVC-Judge"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-PVC Judge-blue"></a>
+  <a href="https://huggingface.co/datasets/GEditBench-v2/GEditBench-v2"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20HF-GEditBench v2-blue"></a>
+  <a href="https://huggingface.co/datasets/GEditBench-v2/VCReward-Bench"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20HF-VCReward Bench-blue"></a>
+  <a href="https://huggingface.co/GEditBench-v2/PVC-Judge"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20HF-PVC Judge-blue"></a>
 
 ## 🚀 Overview
 **GEditBench v2** is a comprehensive benchmark with **1,200 real-world user queries spanning 23 tasks**, including a dedicated **open-set category for unconstrained, out-of-distribution editing instructions** beyond predefined tasks.
