@@ -316,6 +316,69 @@ At minimum, check:
 - output directories
 
 
-## ⚔️ Model Arena
+## ⚔️ Start Model Arena on GEditBench v2
+**Step0**: Download [GEditBench-v2-CandidatesGallery](https://huggingface.co/datasets/GEditBench-v2/GEditBench-v2-CandidatesGallery)
+
+
+
+**Step1:** Generate images on GEditBench v2 by `autogen` (or your own scripts) to the candidates gallery folder and merge the generation information to metadata, run
+
+```bash
+autogen run geditv2 \
+  --model qwen-image-edit \
+  --bench-path /path/to/GEditBench-v2 \
+  --image-save-dir /path/to/GEditBench-v2/candidates/gallery \
+  --gpus-per-worker 1 \
+  --merge-to-metadata /path/to/GEditBenchv2/candidates/gallery/metadata.jsonl
+```
+
+Then, you will get:
+
+```text
+GEditBench-v2-CandidatesGallery/
+├── BAGEL/
+├── Step1X_Edit_v1p2/
+...
+├── Your_model_here/ 								<- !generated images by your model
+│   ├── background_change_000000.png
+│   ├── background_change_000001.png
+│   ...
+│
+├── metadata.jsonl
+└── metadata_{timestamp}.jsonl 				<- !the merged metadata
+```
+
+**Step2**: Run pairwise comparison using `autopipeline`
+
+```bash
+autopipeline eval \
+  --bmk geditv2 \
+  --pipeline-config-path $(pwd)/configs/pipelines/vlm_as_a_judge/openai.yaml \
+  --user-config $(pwd)/configs/pipelines/user_config.yaml \
+  --save-path $(pwd)/data/e_geditv2_pair_res \
+  --max-workers 200 \
+  --geditv2-metadata-file /path/to/GEditBenchv2/candidates/gallery/metadata_{timestamp}.jsonl
+```
+
+Then, you will get the comparison results in `./data/e_geditv2_pair_res/geditv2/eval_xx_meta_data_{timestamp/{new_timestamp}.jsonl`
+
+
+
+**Step3**: Compute the Elo Score
+
+```bash
+# you can use the bash script
+bash ./scripts/elo.sh 1000 # bootstrap iteration number
+
+# or you can use the normal .py script
+python ./src/common_utils/elo_score.py
+  --result-files "/absolute/path/to/data/e_geditv2_pair_res/geditv2/eval_xx_meta_data_{timestamp/{new_timestamp}.jsonl" \
+  --bootstrap 1000 \
+  --alpha 1 \ # for Bradley-Terry Model
+  --dimension-weighting "balanced" \
+  --seed 42
+```
+
+
 
 
