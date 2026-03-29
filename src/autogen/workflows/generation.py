@@ -544,16 +544,26 @@ def run_dataset_generation(
 
 
 def prepare_geditv2_inputs(bench_path: str) -> List[dict]:
-    meta_info = _load_jsonl(os.path.join(bench_path, "metadata.jsonl"))
+    from datasets import load_from_disk
+    from concurrent.futures import ProcessPoolExecutor
+    from tqdm import tqdm
+    meta_info = load_from_disk(bench_path)
+
+    def _load_item(item):
+        return {
+            "key": item["key"],
+            "instruction": item["instruction"],
+            "image_path": item["source_image"], # Image.Image
+        }
     items = []
-    for item in meta_info:
-        items.append(
-            {
-                "key": item["key"],
-                "instruction": item["instruction"],
-                "image_path": os.path.join(bench_path, item["source_image"]),
-            }
-        )
+    with ProcessPoolExecutor(max_workers=os.cpu_count()) as executor:
+        for item in tqdm(
+            executor.map(_load_item, meta_info),
+            total=len(meta_info),
+            desc="Loading images",
+        ):
+            items.append(item)
+
     print(f"Loaded {len(items)} image-instruction samples!")
     return items
 
