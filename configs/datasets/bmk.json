@@ -14,10 +14,11 @@
         "image_data_path": "data/z_reward_bench/editreward_bench_images"
     },
     "vc_reward": {
-        "bench_path": "vcreward_bench"
+        "bench_path": "/path/to/VCReward-Bench"
     },
     "geditv2": {
-        "bench_path": "geditv2_bench",
+        "bench_path": "/path/to/GEditBench-v2",
+        "candidates_gallery_path": "/path/to/GEditBench-v2/candidates/gallery",
         "selected_compare_model_list": [
             "BAGEL",
             "FireRed_Image_Edit_1p1",
