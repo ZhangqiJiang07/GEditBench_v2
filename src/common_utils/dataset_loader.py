@@ -134,16 +134,19 @@ class VCRewardBenchmark(BaseDataset):
         print(f"VCReward dataset loaded in {time.time() - start_time} seconds: {len(self.dataset)} valid samples found.")
     
     def prepare_dataset(self) -> Dict[str, Dict]:
-        meta_info = [
-            json.loads(line) for line in open(os.path.join(self.bench_path, 'metadata.jsonl'), 'r')
-        ]
+        from datasets import load_dataset
+        meta_info = load_dataset(
+            "parquet",
+            data_files=f"{self.bench_path}/data/*.parquet",
+            streaming=True
+        )
         items = {}
-        for item in meta_info:
+        for item in meta_info['train']:
             items[item['key']] = {
                 "instruction": item["instruction"],
-                "input_image": os.path.join(self.bench_path, item["source_image"]),
+                "input_image": item["source_image"],
                 "edited_images": [
-                    os.path.join(self.bench_path, img_path) for img_path in item['edited_images']
+                    img_path for img_path in item['edited_images']
                 ],
                 "winner": item['winner'],
                 "task_type": item['task'],
