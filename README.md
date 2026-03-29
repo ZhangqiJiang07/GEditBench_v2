@@ -161,10 +161,10 @@ autogen run candidates \
 ```bash
 autogen run geditv2 \
   --model qwen-image-edit \
-  --bench-path /path/to/geditv2 \
-  --image-save-dir /path/to/save/output/images \
+  --bench-path /path/to/GEditBench-v2 \
+  --image-save-dir /path/to/GEditBench-v2/candidates/gallery \
   --gpus-per-worker 1 \
-  --merge-to-metadata # (optional) if you want to join model comparison
+  --merge-to-metadata /path/to/GEditBenchv2/candidates/gallery/metadata.jsonl # (optional) if you want to join model comparison
 ```
 
 ## 📝 `autopipeline` CLI
