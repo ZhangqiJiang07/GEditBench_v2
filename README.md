@@ -250,7 +250,7 @@ autotrain \
   --num-gpus 8
 ```
 
-## 🥏 Inference for PVC-Judge
+## 🥏 PVC-Judge Inference
 
 ### Packaged as an online client
 - Merge LoRA weights to models, required env `torch/peft/transformers`
@@ -282,7 +282,7 @@ python -m vllm.entrypoints.openai.api_server \
 See `autopipeline` Usage!
 
 
-### Offline
+### Offline Inference
 
 ```bash
 # For local judge inference
