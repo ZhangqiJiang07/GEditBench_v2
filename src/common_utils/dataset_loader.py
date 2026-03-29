@@ -163,9 +163,10 @@ def _load_model_candidates(model_lists: dict):
     return candidates_dict
 
 class GEditBenchV2Eval(BaseDataset):
-    def __init__(self, bench_path, meta_file, selected_compare_model_list):
+    def __init__(self, bench_path, candidates_gallery_path, meta_file, selected_compare_model_list):
         self.benchmark_name = DEFAULT_BENCHMARK_NAME
         self.bench_path = str(resolve_project_path(bench_path))
+        self.candidates_gallery_path = str(resolve_project_path(candidates_gallery_path))
         self.meta_file = meta_file
         self.valid_compare_model_list = self._check_candidate_models(selected_compare_model_list)
 
@@ -179,9 +180,9 @@ class GEditBenchV2Eval(BaseDataset):
         valid_models = []
         model_sample_counts = {}
         for model_name in selected_compare_model_list:
-            if not os.path.exists(os.path.join(self.bench_path, 'images', 'edited', model_name)):
+            if not os.path.exists(os.path.join(self.candidates_gallery_path, model_name)):
                 raise ValueError(f"Model {model_name} does not exist in the benchmark edited images directory.")
-            num_samples = len(os.listdir(os.path.join(self.bench_path, 'images', 'edited', model_name)))
+            num_samples = len(os.listdir(os.path.join(self.candidates_gallery_path, model_name)))
             model_sample_counts[model_name] = num_samples
             print(f"{model_name:<20} | {num_samples}")
             if num_samples > 200:
@@ -193,28 +194,47 @@ class GEditBenchV2Eval(BaseDataset):
                     "which may lead to unreliable evaluation results. "
                     "Consider removing it from the selected_compare_model_list."
                 )
-        return valid_models        
-
-    def prepare_dataset(self) -> Dict[str, Dict]:
-        meta_info = [
-            json.loads(line) for line in open(os.path.join(self.bench_path, self.meta_file), 'r')
-        ]
-
-        items = {}
-        for item in meta_info:
-            candidates_list = item['candidates']
-            existing_image_paths = {
-                candidate_model_info['model']: os.path.join(self.bench_path, candidate_model_info['image'])
-                for candidate_model_info in candidates_list
-                if candidate_model_info['model'] in self.valid_compare_model_list
-            }
-            pairs_dict = generate_canonical_pairs(existing_image_paths, seed=item['key'])
-            for pair_key, pair_paths in pairs_dict.items():
-                items[f"{item['key']}_pair_{pair_key}"] = {
+        return valid_models
+    
+    def _load_item(self, item, candidates_info):
+        candidates_list = candidates_info[item['key']]
+        existing_image_paths = {
+            candidate_model_info['model']: os.path.join(self.candidates_gallery_path, candidate_model_info['image'])
+            for candidate_model_info in candidates_list
+            if candidate_model_info['model'] in self.valid_compare_model_list
+        }
+        pairs_dict = generate_canonical_pairs(existing_image_paths, seed=item['key'])
+        group_pairs = []
+        for pair_key, pair_paths in pairs_dict.items():
+            group_pairs.append((
+                f"{item['key']}_pair_{pair_key}",
+                {
                     "instruction": item["instruction"],
-                    "input_image": os.path.join(self.bench_path, item["source_image"]),
+                    "input_image": item["source_image"],
                     "edited_images": pair_paths,
                 }
+            ))
+        return group_pairs
+
+    def prepare_dataset(self) -> Dict[str, Dict]:
+        from datasets import load_from_disk
+        from concurrent.futures import ProcessPoolExecutor
+        geditv2 = load_from_disk(self.bench_path)
+        meta_info = [json.loads(line) for line in open(self.meta_file, 'r')]
+        candidates_info = {
+            item['key']: item['candidates'] for item in meta_info
+        }
+
+        items = {}
+        with ProcessPoolExecutor(max_workers=os.cpu_count() or 1) as executor:
+            partial_load_func = functools.partial(self._load_item, candidates_info=candidates_info)
+            for group_pairs in tqdm(
+                executor.map(partial_load_func, geditv2),
+                total=len(geditv2),
+                desc="Constructing comparison pairs"
+            ):
+                for group_key, group_info in group_pairs:
+                    items[group_key] = group_info
         print(f"Loaded {len(items)} pairwise samples!")
         return items
 
@@ -309,6 +329,7 @@ def load_dataset(bmk_name: str, **kwargs):
     elif bmk_name == DEFAULT_BENCHMARK_NAME:
         return GEditBenchV2Eval(
             bench_path=kwargs['bench_path'],
+            candidates_gallery_path=kwargs['candidates_gallery_path'],
             meta_file=kwargs.get('meta_file', 'metadata.jsonl'),
             selected_compare_model_list=kwargs['selected_compare_model_list']
         )
