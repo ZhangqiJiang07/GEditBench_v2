@@ -126,7 +126,7 @@ def _build_parser() -> argparse.ArgumentParser:
         run_geditv2_parser.add_argument("--gpus-per-worker", type=int, default=1)
         run_geditv2_parser.add_argument("--bench-path", type=str, default=None)
         run_geditv2_parser.add_argument("--image-save-dir", type=str, default=DEFAULT_GEDITV2_IMAGE_SAVE_DIR)
-        run_geditv2_parser.add_argument("--merge-to-metadata", action="store_true")
+        run_geditv2_parser.add_argument("--merge-to-metadata", type=str, default=None)
         run_geditv2_parser.add_argument("--bmk-config-path", type=str, default=DEFAULT_BMK_CONFIG_PATH)
         run_geditv2_parser.set_defaults(func=_cmd_run_geditv2, benchmark_name=normalize_benchmark_name(command_name))
 
