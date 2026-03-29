@@ -163,9 +163,8 @@ autogen run geditv2 \
   --model qwen-image-edit \
   --bench-path /path/to/geditv2 \
   --image-save-dir /path/to/save/output/images \
-  --bmk-config-path ./configs/datasets/bmk.json \
   --gpus-per-worker 1 \
-  --merge-to-metadata # optional if you want to join model comparison
+  --merge-to-metadata # (optional) if you want to join model comparison
 ```
 
 ## 📝 `autopipeline` CLI
