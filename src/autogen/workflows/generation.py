@@ -577,12 +577,12 @@ def _resolve_geditv2_bench_path(bench_path: Optional[str], bmk_config_path: str)
 
 
 def _merge_geditv2_to_metadata(
-    bench_path: str,
+    metadata_file_path: str,
     model: str,
     dataset: List[dict],
     cache_manager: CacheManager,
 ) -> str:
-    metadata_path = os.path.join(bench_path, "metadata.jsonl")
+    metadata_path = os.path.join(metadata_file_path)
     if not os.path.exists(metadata_path):
         raise FileNotFoundError(f"Metadata file not found at {metadata_path}")
 
@@ -598,14 +598,14 @@ def _merge_geditv2_to_metadata(
             item["candidates"].append(
                 {
                     "model": model,
-                    "image": os.path.relpath(key_to_image[item["key"]], bench_path),
+                    "image": os.path.relpath(key_to_image[item["key"]], os.path.dirname(metadata_file_path)),
                 }
             )
 
     import pandas as pd
 
     timestamp = pd.Timestamp.now().strftime("%Y%m%d_%H%M%S")
-    merged_output_path = os.path.join(bench_path, f"metadata_{timestamp}.jsonl")
+    merged_output_path = os.path.join(os.path.dirname(metadata_file_path), f"metadata_{timestamp}.jsonl")
     with open(merged_output_path, "w", encoding="utf-8") as out_f:
         for item in metadata:
             out_f.write(json.dumps(item) + "\n")
@@ -617,7 +617,7 @@ def run_geditv2_generation(
     gpus_per_worker: int = 1,
     bench_path: Optional[str] = None,
     image_save_dir: str = str(PROJECT_ROOT / "geditv2_bench" / "images" / "edited"),
-    merge_to_metadata: bool = False,
+    merge_to_metadata: str = "path/to/candidates/gallery/metadata.jsonl",
     bmk_config_path: str = str(CONFIGS_ROOT / "datasets" / "bmk.json"),
 ) -> Tuple[str, Optional[str]]:
     if model not in GEDITV2_MODELS:
