@@ -220,9 +220,13 @@ class GEditBenchV2Eval(BaseDataset):
         return group_pairs
 
     def prepare_dataset(self) -> Dict[str, Dict]:
-        from datasets import load_from_disk
+        from datasets import load_from_disk, load_dataset
         from concurrent.futures import ProcessPoolExecutor
-        geditv2 = load_from_disk(self.bench_path)
+        geditv2 = load_dataset(
+            "parquet",
+            data_files=f"{self.bench_path}/data/*.parquet",
+            streaming=True
+        )
         meta_info = [json.loads(line) for line in open(self.meta_file, 'r')]
         candidates_info = {
             item['key']: item['candidates'] for item in meta_info
@@ -232,8 +236,8 @@ class GEditBenchV2Eval(BaseDataset):
         with ProcessPoolExecutor(max_workers=os.cpu_count() or 1) as executor:
             partial_load_func = functools.partial(self._load_item, candidates_info=candidates_info)
             for group_pairs in tqdm(
-                executor.map(partial_load_func, geditv2),
-                total=len(geditv2),
+                executor.map(partial_load_func, geditv2['train']),
+                total=len(geditv2['train']),
                 desc="Constructing comparison pairs"
             ):
                 for group_key, group_info in group_pairs:
