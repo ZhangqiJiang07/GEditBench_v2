@@ -220,7 +220,7 @@ autopipeline train-pairs \
   --prompts-num 1500 \
   --input-dir $(pwd)/data/c_annotated_group_data \
   --output-dir $(pwd)/data/d_train_data \
-  --mode auto \ # group for object- and human-centric pipelines; judge for vlm-as-a-judge pipeline
+  --mode auto \ # "group" for object- and human-centric pipelines, while "judge" for vlm-as-a-judge pipeline
   --filt-out-strategy head_tail \
   --thresholds-config-file $(pwd)/configs/pipelines/data_construction_configs.json \
 ```
