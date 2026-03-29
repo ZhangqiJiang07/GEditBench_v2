@@ -544,10 +544,14 @@ def run_dataset_generation(
 
 
 def prepare_geditv2_inputs(bench_path: str) -> List[dict]:
-    from datasets import load_from_disk
+    from datasets import load_from_disk, load_dataset
     from concurrent.futures import ProcessPoolExecutor
     from tqdm import tqdm
-    meta_info = load_from_disk(bench_path)
+    meta_info = load_dataset(
+        "parquet",
+        data_files=f"{bench_path}/data/*.parquet",
+        streaming=True
+    )
 
     def _load_item(item):
         return {
@@ -558,8 +562,8 @@ def prepare_geditv2_inputs(bench_path: str) -> List[dict]:
     items = []
     with ProcessPoolExecutor(max_workers=os.cpu_count()) as executor:
         for item in tqdm(
-            executor.map(_load_item, meta_info),
-            total=len(meta_info),
+            executor.map(_load_item, meta_info['train']),
+            total=len(meta_info['train']),
             desc="Loading images",
         ):
             items.append(item)
