@@ -98,7 +98,12 @@ pip install git+https://github.com/huggingface/diffusers
 
 
 ### Usage
- 
+Our `autogen` pipeline can be concluded as follows:
+
+<p align="center">
+  <img src="assets/gen_pipeline.png" alt="autogen pipeline" width="30%">
+</p>
+
 **Step0**: Download open-source dataset from HuggingFace, e.g., [UnicEdit-10M](https://huggingface.co/datasets/xiaotanhua/UnicEdit-10M) and [Nano-Consistency-150k](https://huggingface.co/datasets/Yejy53/Nano-consistent-150k).
 
 **Step1**: Prepare data pool
