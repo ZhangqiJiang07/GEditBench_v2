@@ -255,7 +255,7 @@ autotrain \
   --num-gpus 8
 ```
 
-## 🥏 PVC-Judge Inference
+## ⚖️ PVC-Judge Inference
 
 ### [Option 1] Packaged as an online client
 - Merge LoRA weights to models, required env `torch/peft/transformers`
