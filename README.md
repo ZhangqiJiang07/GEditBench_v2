@@ -384,6 +384,16 @@ python ./src/common_utils/elo_score.py
   --seed 42
 ```
 
+## Citation
 
 
+
+## Acknowledgments
+We would like to express our sincere gratitude to the following projects:
+
+- [Awesome-Nano-Banana-images](https://github.com/PicoTrex/Awesome-Nano-Banana-images)
+
+- [ZHO-nano-banana-Creation](https://github.com/ZHO-ZHO-ZHO/ZHO-nano-banana-Creation)
+
+The majority of the editing instructions in our open-set category were sourced from these excellent repositories. Thank you for your amazing contributions to the open-source community!
 
