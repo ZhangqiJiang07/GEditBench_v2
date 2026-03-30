@@ -76,10 +76,10 @@ In practical terms, the repository supports the following loop:
 ## 🎄 Content
 - `autogen` CLI (env & usage)
 - `autopipeline` CLI (env & usage)
-- `autotrain` CLI
-- Inference for PVC-Judge
+- `autotrain` CLI (env & usage)
+- PVC-Judge Inference
 - Before using: Configuration You Should Update First
-- Model Arena
+- Start Model Arena on GEditBench v2
 
 
 ## 🎞️ `autogen` CLI
@@ -101,7 +101,7 @@ pip install git+https://github.com/huggingface/diffusers
 Our `autogen` pipeline can be concluded as follows:
 
 <p align="center">
-  <img src="assets/gen_pipeline.png" alt="autogen pipeline" width="30%">
+  <img src="assets/gen_pipeline.png" alt="autogen pipeline" width="35%">
 </p>
 
 **Step0**: Download open-source dataset from HuggingFace, e.g., [UnicEdit-10M](https://huggingface.co/datasets/xiaotanhua/UnicEdit-10M) and [Nano-Consistency-150k](https://huggingface.co/datasets/Yejy53/Nano-consistent-150k).
@@ -257,7 +257,7 @@ autotrain \
 
 ## 🥏 PVC-Judge Inference
 
-### Packaged as an online client
+### [Option 1] Packaged as an online client
 - Merge LoRA weights to models, required env `torch/peft/transformers`
 ```bash
 python ./scripts/merge_lora.py \
@@ -287,7 +287,7 @@ python -m vllm.entrypoints.openai.api_server \
 See `autopipeline` Usage!
 
 
-### Offline Inference
+### [Option 2] Offline Inference
 
 ```bash
 # For local judge inference
