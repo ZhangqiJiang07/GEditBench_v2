@@ -1,7 +1,7 @@
 <h1 align="center">GEditBench v2: A Human-Aligned Benchmark for General Image Editing</h1>
 
 <p align="center">
-  <a href="https://arxiv.org/abs/2603.28547"><img src="https://img.shields.io/badge/Paper-arXiv%3AGEditBench v2-b31b1b?logo=arxiv&logoColor=red"></a>
+  <a href="https://arxiv.org/abs/2603.28547"><img src="https://img.shields.io/badge/Paper-arXiv%3A2603.28547-b31b1b?logo=arxiv&logoColor=red"></a>
   <a href="https://zhangqijiang07.github.io/gedit2_web/"><img src="https://img.shields.io/badge/%F0%9F%8C%90%20Project%20Page-Website-8A2BE2"></a>
   <a href="https://huggingface.co/datasets/GEditBench-v2/GEditBench-v2"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20HF-GEditBench v2-blue"></a>
   <a href="https://huggingface.co/datasets/GEditBench-v2/VCReward-Bench"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20HF-VCReward Bench-blue"></a>
