@@ -385,8 +385,16 @@ python ./src/common_utils/elo_score.py
 ```
 
 ## Citation
+Please cite our paper if it's helpful to your work!
 
-
+```
+@article{jiang2026geditbench,
+  title={GEditBench v2: A Human-Aligned Benchmark for General Image Editing},
+  author={Jiang, Zhangqi and Sun, Zheng and Zeng, Xianfang and Yang, Yufeng and Zhang, Xuanyang and Wu, Yongliang and Cheng, Wei and Yu, Gang and Yang, Xu and Wen, Bihan},
+  journal={arXiv preprint arXiv:2603.28547},
+  year={2026}
+}
+```
 
 ## Acknowledgments
 We would like to express our sincere gratitude to the following projects:
